@@ -1,6 +1,55 @@
 import logo from './logo.svg';
 import './App.css';
-import { useDocument } from './hooks'
+import { useState } from 'react'
+import { useDocument, useRepo } from './hooks'
+
+function TodoItem({documentId}) {
+  const [doc, changeDoc] = useDocument(documentId)
+  const toggleDone = (e) => {
+    changeDoc((d) => {
+      d.done = !d.done
+    })
+  } 
+  const { text, done } = doc
+  console.log(doc)
+  return <li style={done ? {'text-decoration': 'line-through'} : {}} onClick={toggleDone}>{text}</li>
+}
+
+function TodoList({documentId}) {
+  const repo = useRepo()
+  const [input, setInput] = useState("")
+  const [doc, changeDoc] = useDocument(documentId)
+  
+  const addItem = (e) => {
+    e.preventDefault()
+    changeDoc( (d) => {
+      if (!d.items) { d.items = [] }
+      const newItem = repo.create()
+      d.items.push(newItem.documentId)
+      newItem.change(d => { 
+        d.text = input
+        d.done = false
+      })
+      setInput("")
+    })
+  }
+
+  const items = (doc.items || []).map((i) => <TodoItem documentId={i}/>)
+
+  return (
+    <>
+      <ul id="todo-list">{items}</ul>
+      <form onSubmit={addItem}>
+          <input
+            type="text" 
+            id="new-todo"
+            value={input}
+            onChange={e => setInput(e.target.value)} />
+          <input type="submit" value=">"/>
+      </form>
+    </>
+  )
+}
 
 function App({ rootDocumentId }) {
   const [doc, changeDoc] = useDocument(rootDocumentId)
@@ -10,8 +59,7 @@ function App({ rootDocumentId }) {
     })
   }
   
-  const message = doc.message + " " + doc.count
-  console.log('message', doc, message)
+  const { message, count } = doc
   return (
     <div className="App">
       <header className="App-header">
@@ -19,15 +67,8 @@ function App({ rootDocumentId }) {
         <p>
           { message }
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <button onClick={bumpCounter} label="hey there"></button>
+        <TodoList documentId={rootDocumentId}/>
+        <button onClick={bumpCounter}>We smashed it {count} times!</button>
       </header>
     </div>
   );
