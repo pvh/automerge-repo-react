@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
@@ -17,6 +17,7 @@ async function getRootDocument(repo, initFunction) {
 
   if (!docId) {
     rootHandle = repo.create()
+    rootHandle.change(initFunction)
     localforage.setItem('root', rootHandle.documentId)
   } else {
     rootHandle = await repo.find(docId)
