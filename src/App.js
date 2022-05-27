@@ -1,21 +1,16 @@
 import logo from './logo.svg';
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useDocument } from './hooks'
 
-import { BrowserRepo } from 'automerge-repo'
-const repo = BrowserRepo()
-const handle = repo.create()
-handle.change( (d) => {
-  d.message = "Hello world."
-})
-
-function App() {
-  const [doc, setDoc] = useState({})
-  useEffect(() => {
-    handle.value().then((v) => setDoc(v))
-  })
-
-  const message = doc.message
+function App({ rootDocumentId }) {
+  const [doc, changeDoc] = useDocument(rootDocumentId)
+  const bumpCounter = (ev) => {
+    changeDoc((doc) => {
+      doc.count = doc.count+1
+    })
+  }
+  
+  const message = doc.message + " " + doc.count
   console.log('message', doc, message)
   return (
     <div className="App">
@@ -32,6 +27,7 @@ function App() {
         >
           Learn React
         </a>
+        <button onClick={bumpCounter} label="hey there"></button>
       </header>
     </div>
   );
