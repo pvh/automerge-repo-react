@@ -11,8 +11,7 @@ function TodoItem({documentId}) {
     })
   } 
   const { text, done } = doc
-  console.log(doc)
-  return <li style={done ? {'text-decoration': 'line-through'} : {}} onClick={toggleDone}>{text}</li>
+  return <li style={done ? {'textDecoration': 'line-through'} : {}} onClick={toggleDone}>{text}</li>
 }
 
 function TodoList({documentId}) {
@@ -34,7 +33,7 @@ function TodoList({documentId}) {
     })
   }
 
-  const items = (doc.items || []).map((i) => <TodoItem documentId={i}/>)
+  const items = (doc.items || []).map((i) => <TodoItem key={i} documentId={i}/>)
 
   return (
     <>
