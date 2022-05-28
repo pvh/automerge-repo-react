@@ -5,8 +5,23 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import { RepoContext } from './hooks';
-import { BrowserRepo } from 'automerge-repo'
+
+import {
+  BrowserRepo, 
+  LocalForageStorageAdapter,
+  BroadcastChannelNetworkAdapter,
+  LocalFirstRelayNetworkAdapter
+ } from 'automerge-repo'
+
 import localforage from 'localforage'
+
+const repo = BrowserRepo({
+  storage: new LocalForageStorageAdapter(),
+  network: [
+    new BroadcastChannelNetworkAdapter(),
+    new LocalFirstRelayNetworkAdapter('ws://localhost:8080')
+  ]
+})
 
 async function getRootDocument(repo, initFunction) {
   let docId = window.location.hash.replace(/^#/, '')
@@ -25,7 +40,6 @@ async function getRootDocument(repo, initFunction) {
   return rootHandle
 }
 
-const repo = BrowserRepo()
 
 const initFunction = (d) => {
   d.message = "Hello world."
