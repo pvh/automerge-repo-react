@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, createContext, useContext } from 'react'
+import { useEffect, useState, createContext, useContext } from 'react'
 
 export const RepoContext = createContext(null)
 
@@ -29,7 +29,7 @@ export function useHandle(documentId) {
 
 export function useDocument(documentId) {
   const [doc, setDoc] = useState({})
-  const [handle, setHandle] = useHandle(documentId)
+  const [handle] = useHandle(documentId)
 
   useEffect(() => {
     if (!handle) { return }
