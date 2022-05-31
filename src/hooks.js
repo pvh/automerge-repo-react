@@ -28,14 +28,14 @@ export function useHandle(documentId) {
 }
 
 export function useDocument(documentId) {
-  const [doc, setDoc] = useState({})
+  const [doc, setDoc] = useState(null)
   const [handle] = useHandle(documentId)
 
   useEffect(() => {
     if (!handle) { return }
-    handle.value().then((v) => setDoc(v))
-    handle.on('change', (h) => { setDoc(h.doc) } )
-  })
+    handle.value().then((v) => setDoc(v.materialize('/')))
+    handle.on('change', (h) => { setDoc(h.doc.materialize('/')) } )
+  }, [handle])
 
   const changeDoc = (changeFunction) => {
     handle.change(changeFunction)

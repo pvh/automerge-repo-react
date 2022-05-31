@@ -43,11 +43,10 @@ async function getRootDocument(repo, initFunction) {
   return rootHandle
 }
 
-
 const initFunction = (d) => {
-  d.message = "Hello world."
-  d.count = 0
-  d.items = []
+  d.put('/', 'message', "Hello world.")
+  d.put('/', 'count', 0, 'counter')
+  d.putObject('/', 'items', [])
 }
 
 getRepo().then((repo) => { 
