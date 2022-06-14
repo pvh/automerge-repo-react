@@ -2,6 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import { useState } from 'react'
 import { useDocument, useRepo } from './hooks'
+import { Editor } from './prosemirror/Editor'
 
 function TodoItem({documentId}) {
   const [doc, changeDoc] = useDocument(documentId)
@@ -66,6 +67,7 @@ function App({ rootDocumentId }) {
         <p>
           { message }
         </p>
+        <Editor />
         <TodoList documentId={rootDocumentId}/>
         <button onClick={bumpCounter}>We smashed it {count} times!</button>
       </header>
