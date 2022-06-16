@@ -12,19 +12,21 @@ import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRe
 
 import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransactionToAutomerge'
 import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
+import * as Automerge from 'automerge-js'
 
-export function Editor({doc, changeDoc}) {
+export function Editor(props) {
+  const { doc, changeDoc } = props
   const [state, setState] = React.useState(null)
-
+  
   console.log(doc, changeDoc)
 
-  useEffect((amD) => {
-    if (!amD) return
-    let atjsonDoc = PeritextSource.fromRaw(amD)
-    let doc = ProsemirrorRenderer.render(atjsonDoc)
+  useEffect(() => {
+    if (!doc) return
+    let atjsonDoc = PeritextSource.fromRaw(doc)
+    let renderableDoc = ProsemirrorRenderer.render(atjsonDoc)
     let editorConfig = {
       schema,
-      amD,
+      renderableDoc,
       history,
       plugins: [
         keymap({...baseKeymap, 'Mod-z': undo, 'Mod-y': redo, 'Mod-Shift-z': redo})
