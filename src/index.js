@@ -14,13 +14,15 @@ import BrowserRepo from 'automerge-repo/src/BrowserRepo';
 
 import localforage from 'localforage'
 
-const repo = BrowserRepo({
-  storage: new LocalForageStorageAdapter(),
-  network: [
-    new BroadcastChannelNetworkAdapter(),
-    new BrowserWebSocketClientAdapter('ws://localhost:3000')
-  ]
-})
+async function getRepo() {
+  return await BrowserRepo({
+    storage: new LocalForageStorageAdapter(),
+    network: [
+      new BroadcastChannelNetworkAdapter(),
+      new BrowserWebSocketClientAdapter('ws://localhost:3000')
+    ]
+  })
+}
 
 async function getRootDocument(repo, initFunction) {
   let docId = window.location.hash.replace(/^#/, '')
@@ -46,18 +48,20 @@ const initFunction = (d) => {
   d.items = []
 }
 
-getRootDocument(repo, initFunction).then((rootDoc) => {
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(
-    <React.StrictMode>
-      <RepoContext.Provider value={repo}>
-        <App rootDocumentId={rootDoc.documentId}/>
-      </RepoContext.Provider>
-    </React.StrictMode>
-  );
+getRepo().then(repo => {
+  getRootDocument(repo, initFunction).then((rootDoc) => {
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+      <React.StrictMode>
+        <RepoContext.Provider value={repo}>
+          <App rootDocumentId={rootDoc.documentId}/>
+        </RepoContext.Provider>
+      </React.StrictMode>
+    );
 
-  // If you want to start measuring performance in your app, pass a function
-  // to log results (for example: reportWebVitals(console.log))
-  // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-  reportWebVitals();
+    // If you want to start measuring performance in your app, pass a function
+    // to log results (for example: reportWebVitals(console.log))
+    // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+    reportWebVitals();
+  })
 })
