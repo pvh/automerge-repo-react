@@ -13,6 +13,7 @@ function App({ rootDocumentId }) {
   }
   
   if (!doc) return
+  
   const { message, count } = doc
   return (
     <div className="App">

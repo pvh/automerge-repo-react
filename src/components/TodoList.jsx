@@ -31,6 +31,8 @@ export function TodoList({documentId}) {
     })
   }
 
+  if (!doc) { return }
+
   const items = (doc.items || []).map((i) => <TodoItem key={i} documentId={i}/>)
 
   return (
