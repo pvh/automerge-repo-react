@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import { useDocument } from './hooks'
-import AutomergeProsemirror from './components/AutomergeProsemirror';
+import { Editor } from './prosemirror/Editor';
 import { TodoList } from './components/TodoList';
 
 function App({ rootDocumentId }) {
@@ -23,7 +23,7 @@ function App({ rootDocumentId }) {
           { message }
         </p>
         <TodoList documentId={rootDocumentId}/>
-        <AutomergeProsemirror doc={doc} changeDoc={changeDoc}/>
+        <Editor doc={doc} changeDoc={changeDoc}/>
         <button onClick={bumpCounter}>We smashed it {count} times!</button>
       </header>
     </div>

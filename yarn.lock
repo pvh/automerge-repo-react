@@ -19,6 +19,25 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
+"@atjson/document@^0.24.5":
+  version "0.24.5"
+  resolved "https://registry.yarnpkg.com/@atjson/document/-/document-0.24.5.tgz#3da430e3f529bea3786a480756dfc85e8e24454d"
+  integrity sha512-wFBQMOUzH3jtHjP8i2VKgTUV8J0UQjoFt32UycHB8I/aOxS5adiUWo6YNOt62NkMarAnUYHoUcd94tC8pXM6ww==
+  dependencies:
+    uuid-random "^1.3.0"
+
+"@atjson/hir@0.22.14":
+  version "0.22.14"
+  resolved "https://registry.yarnpkg.com/@atjson/hir/-/hir-0.22.14.tgz#6d3ad1d1cf7a1f6d8bccfb684f5d72b08a55b80b"
+  integrity sha512-JGy6baj6udBgWR7blGaVfpW9r9hhX9UdArvXAoMVnVatl0yGMzk0duo7q3CHwQnAasKr3wF37prnEiDgbMDjeg==
+
+"@atjson/renderer-hir@^0.22.14":
+  version "0.22.14"
+  resolved "https://registry.yarnpkg.com/@atjson/renderer-hir/-/renderer-hir-0.22.14.tgz#8cbe62b6e1edb5b1db17420a18e5762d0d677ba5"
+  integrity sha512-uGc3QH1yxTOfnvCu/MtNV7nhUtzcQdvHZUluQiSSQhoquipDj/ynClG0DzTjV6tx6pUTszN7VaykErIjU7MXoQ==
+  dependencies:
+    "@atjson/hir" "0.22.14"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.0", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.8.3":
   version "7.16.7"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.16.7.tgz"
@@ -2561,10 +2580,10 @@ atob@^2.1.2:
   resolved "https://registry.npmjs.org/atob/-/atob-2.1.2.tgz"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-automerge-js@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/automerge-js/-/automerge-js-0.1.3.tgz#aa64bd3e1263954ac51485a2d99e2bf4a48354db"
-  integrity sha512-6OvHaDkmf/0pkxaMwgYvqgpWNKbSFGGwFnK/30Fl/Gi4NlrpJfBgUUJbRHdKYkXIcKpCkBVpLZ9UPPykBi2XcQ==
+automerge-js@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/automerge-js/-/automerge-js-0.1.4.tgz#51539b07d07790b4f76080b926756956dcb43a23"
+  integrity sha512-x+jbSAIYZ61tCH56jXDJZ+dGpq0rsdqKFsMMDpQsJafUZVxMKSgkQQHy3dq/XUV7A4YqZJ47PDRMK8Ce+k8Wng==
   dependencies:
     automerge-types "0.1.4"
     uuid "^8.3"
@@ -2583,19 +2602,12 @@ automerge-types@0.1.4:
   resolved "https://registry.yarnpkg.com/automerge-types/-/automerge-types-0.1.4.tgz#ecefcfd5dc8703fb64c3c61f98d24685b746cb86"
   integrity sha512-VguW0d8Wt8jqbObh8bmMlGZMyUR2Av6eMtboekEzuHI3juru4oeq5+4brcceO/0Us8bkQdfZGErCR9vmBcX7Sw==
 
-automerge-wasm-pack@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/automerge-wasm-pack/-/automerge-wasm-pack-0.1.2.tgz#55bffd8607f3f6d1e19813b82b6261fc36de4907"
-  integrity sha512-so9/9mIT92SpRzNp36CfNmZhPo9/P/RX92E5XbawQVmW5XnyLf9s6RRd4wchFs17JvURejIAvDqHFJiK1DCJVA==
-
-automerge@^1.0.1-preview.7:
-  version "1.0.1-preview.7"
-  resolved "https://registry.npmjs.org/automerge/-/automerge-1.0.1-preview.7.tgz"
-  integrity sha512-Fz5fJdU59xYYj0viteMKTGg/bQWTyibZlkY3V8VQqx9Do1Eg3jtud2+BAI5ZQiKwdWocXc4KKC5o5vT1dzouag==
+automerge-wasm-pack@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/automerge-wasm-pack/-/automerge-wasm-pack-0.1.5.tgz#e424a36ae66adf0d968159d9d4a56e2a2d3190b9"
+  integrity sha512-OAR99YRIxQc842GctxZ+yE/8FzMIn86+OSM/5bbusV9qnMDSXwbCsvXXWyVYrBURmX6bkyrPE2ySatInQpRuYw==
   dependencies:
-    fast-sha256 "^1.3.0"
-    pako "^2.0.3"
-    uuid "^3.4.0"
+    automerge-types "0.1.4"
 
 autoprefixer@^10.4.7:
   version "10.4.7"
@@ -4279,11 +4291,6 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
   version "2.0.6"
   resolved "https://registry.npmjs.org/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
-
-fast-sha256@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.npmjs.org/fast-sha256/-/fast-sha256-1.3.0.tgz"
-  integrity sha512-n11RGP/lrWEFI/bWdygLxhI+pVeo1ZYIVwvvPkW7azl/rOy+F3HYRZ2K5zeE9mmkhQppyv9sQFx0JM9UabnpPQ==
 
 fastq@^1.6.0:
   version "1.13.0"
@@ -6419,11 +6426,6 @@ p-try@^2.0.0:
   resolved "https://registry.npmjs.org/p-try/-/p-try-2.2.0.tgz"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
 
-pako@^2.0.3:
-  version "2.0.4"
-  resolved "https://registry.npmjs.org/pako/-/pako-2.0.4.tgz"
-  integrity sha512-v8tweI900AUkZN6heMU/4Uy4cXRc2AYNRggVmTR+dEncawDJgCdLMximOVA2p4qO57WMynangsfGRb5WD6L1Bg==
-
 param-case@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/param-case/-/param-case-3.0.4.tgz"
@@ -7148,6 +7150,32 @@ prop-types@^15.8.1:
     object-assign "^4.1.1"
     react-is "^16.13.1"
 
+prosemirror-commands@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/prosemirror-commands/-/prosemirror-commands-1.3.0.tgz#361b2e2b2a347ce7453386459f97c3f549a1113b"
+  integrity sha512-BwBbZ5OAScPcm0x7H8SPbqjuEJnCU2RJT9LDyOiiIl/3NbL1nJZI4SFNHwU2e/tRr2Xe7JsptpzseqvZvToLBQ==
+  dependencies:
+    prosemirror-model "^1.0.0"
+    prosemirror-state "^1.0.0"
+    prosemirror-transform "^1.0.0"
+
+prosemirror-history@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/prosemirror-history/-/prosemirror-history-1.3.0.tgz#bf5a1ff7759aca759ddf0c722c2fa5b14fb0ddc1"
+  integrity sha512-qo/9Wn4B/Bq89/YD+eNWFbAytu6dmIM85EhID+fz9Jcl9+DfGEo8TTSrRhP15+fFEoaPqpHSxlvSzSEbmlxlUA==
+  dependencies:
+    prosemirror-state "^1.2.2"
+    prosemirror-transform "^1.0.0"
+    rope-sequence "^1.3.0"
+
+prosemirror-keymap@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/prosemirror-keymap/-/prosemirror-keymap-1.2.0.tgz#d5cc9da9b712020690a994b50b92a0e448a60bf5"
+  integrity sha512-TdSfu+YyLDd54ufN/ZeD1VtBRYpgZnTPnnbY+4R08DDgs84KrIPEPbJL8t1Lm2dkljFx6xeBE26YWH3aIzkPKg==
+  dependencies:
+    prosemirror-state "^1.0.0"
+    w3c-keyname "^2.2.0"
+
 prosemirror-model@^1.0.0, prosemirror-model@^1.16.0, prosemirror-model@^1.18.1, prosemirror-model@^1.2.0:
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/prosemirror-model/-/prosemirror-model-1.18.1.tgz#1d5d6b6de7b983ee67a479dc607165fdef3935bd"
@@ -7162,7 +7190,7 @@ prosemirror-schema-basic@^1.2.0:
   dependencies:
     prosemirror-model "^1.2.0"
 
-prosemirror-state@^1.0.0, prosemirror-state@^1.4.0:
+prosemirror-state@^1.0.0, prosemirror-state@^1.2.2, prosemirror-state@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/prosemirror-state/-/prosemirror-state-1.4.0.tgz#0b0c23b38d9f5bb23d19ad043cf8453d876c0414"
   integrity sha512-mVDZdjNX/YT5FvypiwbphJe9psA5h+j9apsSszVRFc6oKFoIInvzdujh8QW9f9lwHtSYajLxNiM1hPhd0Sl1XA==
@@ -7170,7 +7198,7 @@ prosemirror-state@^1.0.0, prosemirror-state@^1.4.0:
     prosemirror-model "^1.0.0"
     prosemirror-transform "^1.0.0"
 
-prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0:
+prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0, prosemirror-transform@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/prosemirror-transform/-/prosemirror-transform-1.6.0.tgz#8162dbfaf124f9253a7ab28605a9460411a96a53"
   integrity sha512-MAp7AjsjEGEqQY0sSMufNIUuEyB1ZR9Fqlm8dTwwWwpEJRv/plsKjWXBbx52q3Ml8MtaMcd7ic14zAHVB3WaMw==
@@ -7622,6 +7650,11 @@ rollup@^2.43.1:
   integrity sha512-K2zW7kV8Voua5eGkbnBtWYfMIhYhT9Pel2uhBk2WO5eMee161nPze/XRfvEQPFYz7KgrCCnmh2Wy0AMFLGGmMA==
   optionalDependencies:
     fsevents "~2.3.2"
+
+rope-sequence@^1.3.0:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/rope-sequence/-/rope-sequence-1.3.3.tgz#3f67fc106288b84b71532b4a5fd9d4881e4457f0"
+  integrity sha512-85aZYCxweiD5J8yTEbw+E6A27zSnLPNDL0WfPdw3YYodq7WjnTKo0q4dtyQ2gz23iPT8Q9CUyJtAaUNcTxRf5Q==
 
 run-parallel@^1.1.9:
   version "1.2.0"
@@ -8534,10 +8567,10 @@ utils-merge@1.0.1:
   resolved "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.1.tgz"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-uuid@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.npmjs.org/uuid/-/uuid-3.4.0.tgz"
-  integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+uuid-random@^1.3.0:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/uuid-random/-/uuid-random-1.3.2.tgz#96715edbaef4e84b1dcf5024b00d16f30220e2d0"
+  integrity sha512-UOzej0Le/UgkbWEO8flm+0y+G+ljUon1QWTEZOq1rnMAsxo2+SckbiZdKzAHHlVh6gJqI1TjC/xwgR50MuCrBQ==
 
 uuid@^8.3, uuid@^8.3.2:
   version "8.3.2"
@@ -8569,6 +8602,11 @@ w3c-hr-time@^1.0.2:
   integrity sha512-z8P5DvDNjKDoFIHK7q8r8lackT6l+jo/Ye3HOle7l9nICP9lf1Ci25fy9vHd0JOWewkIFzXIEig3TdKT7JQ5fQ==
   dependencies:
     browser-process-hrtime "^1.0.0"
+
+w3c-keyname@^2.2.0:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/w3c-keyname/-/w3c-keyname-2.2.4.tgz#4ade6916f6290224cdbd1db8ac49eab03d0eef6b"
+  integrity sha512-tOhfEwEzFLJzf6d1ZPkYfGj+FWhIpBux9ppoP3rlclw3Z0BZv3N7b7030Z1kYth+6rDuAsXUFr+d0VE6Ed1ikw==
 
 w3c-xmlserializer@^2.0.0:
   version "2.0.0"

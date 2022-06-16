@@ -34,7 +34,7 @@ async function getRootDocument(repo, initFunction) {
   if (!docId) {
     rootHandle = repo.create()
     rootHandle.change(initFunction)
-    localforage.setItem('root', rootHandle.documentId)
+    await localforage.setItem('root', rootHandle.documentId)
   } else {
     rootHandle = await repo.find(docId)
   }
