@@ -59,31 +59,32 @@ export default class AutomergeSource extends Document {
   ]
 
   // This converts an upwell/automerge draft to an atjson document.
-  static fromRaw(doc /*: AutomergeDoc, upwell: Upwell*/) {
-    // first convert marks to annotations
-    let marks = []
-    doc.marks.forEach((m) => {
-      let attrs = {}
-      if (m.type === 'comment') {
-        attrs = doc.comments.get(m.value)
-        //if (m.value.state === CommentState.CLOSED) return
-        if (!attrs) return
-        //if (attrs) attrs.authorColor = upwell.getAuthorColor(attrs.author)
-        else attrs = { authorColor: '', message: '' }
-      } else {
-        try {
-          if (m.value && m.value.length > 0) attrs = JSON.parse(m.value)
-          if (!attrs) return
+  static fromRaw(text, handle, attribute, parentObjId = '_root') {
 
-          if (m.type === 'insert' || m.type === 'delete') {
-            //attrs['authorColor'] = upwell.getAuthorColor(attrs.author)
-          }
-        } catch {
-          console.log(
-            'we should really fix the thing where I stuffed mark attrs into a json string lol'
-          )
-        }
+    // first convert marks to annotations
+    let objId = handle.getObjId(parentObjId, attribute)
+    let marks = handle.getMarks(objId)
+
+    marks.forEach((m) => {
+      let attrs = {}
+      //if (m.type === 'comment') {
+        //attrs = doc.comments.get(m.value)
+        //if (m.value.state === CommentState.CLOSED) return
+        //if (!attrs) return
+        //if (attrs) attrs.authorColor = upwell.getAuthorColor(attrs.author)
+        //else attrs = { authorColor: '', message: '' }
+      //} else {
+
+      try {
+        if (m.value && m.value.length > 0) attrs = JSON.parse(m.value)
+        if (!attrs) return
+      } catch {
+        console.log(
+          'Stuffing mark attrs into a string is not exactly ideal.'
+        )
       }
+
+      //}
 
       // I wonder if there's a (good) way to preserve the automerge identity of
       // the mark here (id? presumably?) Or I guess just the mark itself?) so
@@ -98,14 +99,24 @@ export default class AutomergeSource extends Document {
     })
 
     // next convert blocks to annotations
+    /*
     for (let b of doc.blocks) {
       if (['paragraph', 'heading'].indexOf(b.type) === -1) b.type = 'paragraph'
       b.type = `-automerge-${b.type}`
       marks.push(b)
     }
+    */
+
+    // Insert a fake paragraph until we have native blocks working.
+    marks.push({
+      start: 0,
+      end: text.length,
+      type: '-automerge-paragraph',
+      attributes: {}
+    })
 
     return new this({
-      content: doc.text,
+      content: text,
       annotations: marks,
     })
   }

@@ -12,21 +12,20 @@ import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRe
 
 import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransactionToAutomerge'
 import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
-import * as Automerge from 'automerge-js'
 
 export function Editor(props) {
+  const { handle } = props
+  const { attribute } = props
   const { doc, changeDoc } = props
   const [state, setState] = React.useState(null)
-  
-  console.log(doc, changeDoc)
 
   useEffect(() => {
     if (!doc) return
-    let atjsonDoc = PeritextSource.fromRaw(doc)
-    let renderableDoc = ProsemirrorRenderer.render(atjsonDoc)
+    let atjsonDoc = PeritextSource.fromRaw(doc.text, handle, attribute)
+    let renderDoc = ProsemirrorRenderer.render(atjsonDoc)
     let editorConfig = {
       schema,
-      renderableDoc,
+      doc: renderDoc,
       history,
       plugins: [
         keymap({...baseKeymap, 'Mod-z': undo, 'Mod-y': redo, 'Mod-Shift-z': redo})
@@ -40,12 +39,13 @@ export function Editor(props) {
     // use reliably with useEffect, and ended up using a stable integer id for
     // the document instead. Not sure what to do with the automerge-repo
     // integration, @pvh?
-  }, [doc])
+  }, [doc, attribute, handle])
 
   useEffect((automergeDoc) => {
     if (!state) return
 
-    automergeDoc.change((edits) => {
+    /*
+    doc.change((edits) => {
       let transaction = convertAutomergeTransactionToProsemirrorTransaction(
         automergeDoc,
         state,
@@ -59,6 +59,7 @@ export function Editor(props) {
 
       // remote cursor sync would go here if relevant
     })
+    */
     
     // in upwelling we found that the automerge object wasn't stable enough to
     // use reliably with useEffect, and ended up using a stable integer id for
