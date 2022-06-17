@@ -7,7 +7,8 @@ function TodoItem({documentId}) {
     changeDoc((d) => {
       d.done = !d.done
     })
-  } 
+  }
+  if (!doc) { return }
   const { text, done } = doc
   return <li style={done ? {'textDecoration': 'line-through'} : {}} onClick={toggleDone}>{text}</li>
 }
