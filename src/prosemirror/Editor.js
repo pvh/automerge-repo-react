@@ -21,7 +21,7 @@ export function Editor(props) {
 
   useEffect(() => {
     if (!doc) return
-    let atjsonDoc = PeritextSource.fromRaw(doc.text, handle, attribute)
+    let atjsonDoc = PeritextSource.fromRaw(doc[attribute], handle, attribute)
     let renderDoc = ProsemirrorRenderer.render(atjsonDoc)
     let editorConfig = {
       schema,

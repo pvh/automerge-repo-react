@@ -25,7 +25,7 @@ function App({ rootDocumentId }) {
           { message }
         </p>
         <TodoList documentId={rootDocumentId}/>
-        <Editor doc={doc} changeDoc={changeDoc} handle={handle} attribute={'text'}/>
+        <Editor doc={doc} changeDoc={changeDoc} handle={handle} attribute={'message'}/>
         <button onClick={bumpCounter}>We smashed it {count} times!</button>
       </header>
     </div>
