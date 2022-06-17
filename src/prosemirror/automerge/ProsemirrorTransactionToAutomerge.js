@@ -20,7 +20,7 @@ function handleReplaceStep(
     del: [],
   }
 
-  let { start, end } = prosemirrorToAutomerge(step, doc, state)
+  let { start, end } = prosemirrorToAutomerge(step, state)
 
   if (end !== start) {
     let deleted = doc.deleteAt(start, end - start)
@@ -71,7 +71,7 @@ function handleAddMarkStep(
   doc, //: Draft,
   state //: EditorState
 ) { //: ChangeSet {
-  let { start, end } = prosemirrorToAutomerge(step, doc, state)
+  let { start, end } = prosemirrorToAutomerge(step, state)
   let mark = step.mark
 
   if (mark.type.name === 'comment') {
@@ -95,7 +95,7 @@ function handleRemoveMarkStep(
   state //: EditorState
 ) { //: ChangeSet {
   // TK not implemented because automerge doesn't support removing marks yet
-  let { start, end } = prosemirrorToAutomerge(step, doc, state)
+  let { start, end } = prosemirrorToAutomerge(step, state)
   let mark = step.mark
   if (mark.type.name === 'strong' || mark.type.name === 'em') {
     doc.mark(mark.type.name, `(${start}..${end})`, false)
@@ -139,7 +139,6 @@ function handleReplaceAroundStep(
 
   let { start: gapStart, end: gapEnd } = prosemirrorToAutomerge(
     { from: step.gapFrom, to: step.gapTo },
-    doc,
     state
   )
 
