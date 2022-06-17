@@ -12,7 +12,7 @@ function App({ rootDocumentId }) {
   return (
     <div className="App">
       <header className="App-header">
-        <Editor doc={doc} changeDoc={changeDoc} handle={handle} attribute={'text'}/>
+        <Editor doc={doc} changeDoc={changeDoc} handle={handle} attribute={'message'}/>
       </header>
     </div>
   );
