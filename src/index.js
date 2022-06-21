@@ -11,6 +11,7 @@ import BroadcastChannelNetworkAdapter from 'automerge-repo/src/network/interface
 import BrowserWebSocketClientAdapter from 'automerge-repo/src/network/interfaces/BrowserWebSocketClientAdapter'
 
 import BrowserRepo from 'automerge-repo/src/BrowserRepo';
+import * as Automerge from 'automerge-js'
 
 import localforage from 'localforage'
 
@@ -43,7 +44,7 @@ async function getRootDocument(repo, initFunction) {
 
 
 const initFunction = (d) => {
-  d.message = "Hello world."
+  d.message = new Automerge.Text("Hello World.")
   d.count = 0
   d.items = []
 }

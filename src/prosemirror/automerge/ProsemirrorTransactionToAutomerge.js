@@ -12,9 +12,7 @@ const emptyChangeSet /*: ChangeSet */ = { add: [], del: [] }
 
 function handleReplaceStep(
   step, //: ReplaceStep,
-  doc,
-  handle, //: Draft,
-  objId,
+  text,
   state, //: EditorState
 ) { // : ChangeSet {
   let changeSet = { //: ChangeSet = {
@@ -25,7 +23,7 @@ function handleReplaceStep(
   let { start, end } = prosemirrorToAutomerge(step, state)
 
   if (end !== start) {
-    let deleted = handle.deleteAt(objId, start, end - start)
+    let deleted = text.deleteAt(start, end - start)
     changeSet.del.push({
       //actor: doc.getActorId(),
       pos: start,
@@ -42,10 +40,11 @@ function handleReplaceStep(
           start,
           end: start + node.text.length,
         })
-        handle.insertAt(objId, insOffset, node.text)
+        text.insertAt(insOffset, node.text)
         insOffset += node.text.length
       } else if (['paragraph', 'heading'].indexOf(node.type.name) !== -1) {
-        handle.insertBlock(objId, insOffset++, node.type.name)
+        // this isn't a function, need to implement it somewhere
+        text.insertBlock(insOffset++, node.type.name)
 
         let nodeText = node.textBetween(0, node.content.size)
         changeSet.add.push({
@@ -53,7 +52,7 @@ function handleReplaceStep(
           start,
           end: start + nodeText.length,
         })
-        handle.insertAt(objId, insOffset, nodeText)
+        text.insertAt(insOffset, nodeText)
         insOffset += nodeText.length
       } else {
         alert(
@@ -70,23 +69,22 @@ function handleReplaceStep(
 
 function handleAddMarkStep(
   step, //: AddMarkStep,
-  doc, //: Draft,
-  handle,
-  objId,
+  text, //: Draft,
   state //: EditorState
 ) { //: ChangeSet {
   let { start, end } = prosemirrorToAutomerge(step, state)
   let mark = step.mark
 
   if (mark.type.name === 'comment') {
-    handle.insertComment(
+    // again, isn't a function, needs implementation elsewhere
+    text.insertComment(
       start,
       end,
       mark.attrs.message,
       mark.attrs.author.id
     )
   } else {
-    handle.mark(mark.type.name, `(${start}..${end})`, true)
+    text.mark(mark.type.name, `(${start}..${end})`, true)
   }
 
   // no way to encode mark changes in automerge attribution changesets (just yet)
@@ -95,16 +93,14 @@ function handleAddMarkStep(
 
 function handleRemoveMarkStep(
   step, //: RemoveMarkStep,
-  doc, //: Draft,
-  handle,
-  objId,
+  text, //: Draft,
   state //: EditorState
 ) { //: ChangeSet {
   // TK not implemented because automerge doesn't support removing marks yet
   let { start, end } = prosemirrorToAutomerge(step, state)
   let mark = step.mark
   if (mark.type.name === 'strong' || mark.type.name === 'em') {
-    handle.mark(mark.type.name, `(${start}..${end})`, false)
+    text.mark(mark.type.name, `(${start}..${end})`, false)
   }
 
   // no way to encode mark changes in automerge attribution changesets (just yet)
@@ -113,9 +109,7 @@ function handleRemoveMarkStep(
 
 function handleReplaceAroundStep(
   step, //: ReplaceAroundStep,
-  doc,
-  handle, //: Draft,
-  objId,
+  text,
   state //: EditorState
 ) { //: ChangeSet {
 
@@ -151,7 +145,6 @@ function handleReplaceAroundStep(
     state
   )
 
-  let text = doc.text
   // Double-check that we're doing what we think we are, i.e., replacing a parent node
   if (text[gapStart - 1] !== '\uFFFC') {
     console.error(
@@ -181,7 +174,8 @@ function handleReplaceAroundStep(
 
   let { type, attrs } = node
 
-  handle.setBlock(gapStart - 1, type.name, attrs)
+  // see previous usage of setBlock above, not a function
+  text.setBlock(gapStart - 1, type.name, attrs)
 
   // setBlock doesn't map to a changeSet
   return emptyChangeSet
@@ -189,32 +183,25 @@ function handleReplaceAroundStep(
 
 export const prosemirrorTransactionToAutomerge = (
   transaction, //: Transaction,
-  doc, //: Draft,
-  handle,
-  attribute,
-  state, //: EditorState,
-  parentObjId = '_root'
+  text, //: Draft,
+  state //: EditorState,
 ) => {
   let changeSets /*: ChangeSet[]*/ = []
 
-  const objId = handle.getObjId(parentObjId, attribute)
-
   for (let step of transaction.steps) {
     if (step instanceof ReplaceStep) {
-      let replaceChanges = handleReplaceStep(step, doc, handle, objId, state)
+      let replaceChanges = handleReplaceStep(step, text, state)
       changeSets = changeSets.concat(replaceChanges)
     } else if (step instanceof AddMarkStep) {
-      let addMarkChanges = handleAddMarkStep(step, doc, handle, objId, state)
+      let addMarkChanges = handleAddMarkStep(step, text, state)
       changeSets = changeSets.concat(addMarkChanges)
     } else if (step instanceof RemoveMarkStep) {
-      let removeMarkChanges = handleRemoveMarkStep(step, doc, handle, objId, state)
+      let removeMarkChanges = handleRemoveMarkStep(step, text, state)
       changeSets = changeSets.concat(removeMarkChanges)
     } else if (step instanceof ReplaceAroundStep) {
       let replaceAroundStepChanges = handleReplaceAroundStep(
         step,
-        doc,
-        handle,
-        objId,
+        text,
         state
       )
 

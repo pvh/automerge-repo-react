@@ -65,6 +65,8 @@ export default class AutomergeSource extends Document {
     let objId = handle.getObjId(parentObjId, attribute)
     let marks = handle.getMarks(objId)
 
+    console.log('text', text)
+
     marks.forEach((m) => {
       let attrs = {}
       //if (m.type === 'comment') {
@@ -116,7 +118,7 @@ export default class AutomergeSource extends Document {
     })
 
     return new this({
-      content: text,
+      content: text.toString(),
       annotations: marks,
     })
   }
