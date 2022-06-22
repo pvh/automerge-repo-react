@@ -183,43 +183,49 @@ function handleReplaceAroundStep(
 
 export const prosemirrorTransactionToAutomerge = (
   transaction, //: Transaction,
-  text, //: Draft,
+  doc, //: AutomergeDoc,
+  attribute, //: a string, like "message"
+  changeDoc, //: a change function. God help us.
   state //: EditorState,
 ) => {
   let changeSets /*: ChangeSet[]*/ = []
 
-  for (let step of transaction.steps) {
-    if (step instanceof ReplaceStep) {
-      let replaceChanges = handleReplaceStep(step, text, state)
-      changeSets = changeSets.concat(replaceChanges)
-    } else if (step instanceof AddMarkStep) {
-      let addMarkChanges = handleAddMarkStep(step, text, state)
-      changeSets = changeSets.concat(addMarkChanges)
-    } else if (step instanceof RemoveMarkStep) {
-      let removeMarkChanges = handleRemoveMarkStep(step, text, state)
-      changeSets = changeSets.concat(removeMarkChanges)
-    } else if (step instanceof ReplaceAroundStep) {
-      let replaceAroundStepChanges = handleReplaceAroundStep(
-        step,
-        text,
-        state
-      )
+  changeDoc(d => {
+    const text = d[attribute]
 
-      changeSets = changeSets.concat(replaceAroundStepChanges)
-    }
-  }
+    for (let step of transaction.steps) {
+      if (step instanceof ReplaceStep) {
+        let replaceChanges = handleReplaceStep(step, text, state)
+        changeSets = changeSets.concat(replaceChanges)
+      } else if (step instanceof AddMarkStep) {
+        let addMarkChanges = handleAddMarkStep(step, text, state)
+        changeSets = changeSets.concat(addMarkChanges)
+      } else if (step instanceof RemoveMarkStep) {
+        let removeMarkChanges = handleRemoveMarkStep(step, text, state)
+        changeSets = changeSets.concat(removeMarkChanges)
+      } else if (step instanceof ReplaceAroundStep) {
+        let replaceAroundStepChanges = handleReplaceAroundStep(
+          step,
+          text,
+          state
+        )
 
-  // Combine ChangeSets from all steps.
-  /*
-  let changeSet = [
-    changeSets.reduce((prev, curr) => {
-      return {
-        add: prev.add.concat(curr.add),
-        del: prev.del.concat(curr.del),
+        changeSets = changeSets.concat(replaceAroundStepChanges)
       }
-    }, emptyChangeSet),
-  ]
+    }
+    // Combine ChangeSets from all steps.
+    /*
+    let changeSet = [
+      changeSets.reduce((prev, curr) => {
+        return {
+          add: prev.add.concat(curr.add),
+          del: prev.del.concat(curr.del),
+        }
+      }, emptyChangeSet),
+    ]
 
-  transaction.setMeta(automergeChangesKey, { changeSet })
-  */
+    transaction.setMeta(automergeChangesKey, { changeSet })
+    */
+  })
+
 }

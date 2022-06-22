@@ -77,8 +77,8 @@ export function Editor(props) {
     prosemirrorTransactionToAutomerge(
       transaction,
       doc,
-      handle,
       attribute,
+      changeDoc,
       state
     )
 
