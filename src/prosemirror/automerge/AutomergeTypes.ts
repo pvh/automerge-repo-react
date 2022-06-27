@@ -1,6 +1,8 @@
 
 export type AutomergeDoc = any; // TODO (this should be <T>)
 
+export type AutomergeText = any;
+
 export type AutomergeTransaction = {
   changes: ChangeSet[]
 }

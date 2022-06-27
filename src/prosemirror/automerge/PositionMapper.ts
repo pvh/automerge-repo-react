@@ -3,37 +3,51 @@
 
 import { EditorState } from "prosemirror-state";
 
-type AutomergeDoc = any;
+import { AutomergeText } from './AutomergeTypes';
 
 // foot-gun and could do with some tweaking.
 export const BLOCK_MARKER = '\uFFFC'
 
 export const automergeToProsemirror = (
   step: { start: number; end: number },
-  doc: AutomergeDoc
+  text: AutomergeText
 ) => {
   return {
-    from: automergeToProsemirrorNumber(step.start, doc),
-    to: automergeToProsemirrorNumber(step.end, doc),
+    from: automergeToProsemirrorNumber(step.start, text),
+    to: automergeToProsemirrorNumber(step.end, text),
   }
 }
 
 export const automergeToProsemirrorNumber = (
   position: number,
-  doc: AutomergeDoc
+  text: AutomergeText
 ) => {
   // first, count how many paragraphs we have. n.b. that this won't work once/if
   // we have nested blocks.
-  let idx = doc.text.indexOf(BLOCK_MARKER)
+  //
+  let idx = text.indexOf(BLOCK_MARKER)
+  // remove me
+  if (idx === undefined) {
+    console.log('INDEXOF SHOULD NOT RETURN UNDEFINED; BUG IN AUTOMERGE-JS')
+    idx = -1
+  }
   let i = 0
   while (idx < position && idx !== -1) {
-    idx = doc.text.indexOf(BLOCK_MARKER, idx + 1)
+    idx = text.indexOf(BLOCK_MARKER, idx + 1)
+    if (idx === undefined) {
+      console.log('INDEXOF SHOULD NOT RETURN UNDEFINED; BUG IN AUTOMERGE-JS')
+      idx = -1
+    }
     i++
   }
 
+  // There has to be a more elegant way to do this as part of the above.
+  // If the document starts with a block, we need to account for it below:
+  const offset = (text.indexOf(BLOCK_MARKER, 0) === 0) ? 1 : 0
+
   // this is how many blocks precede the current one.
   // BtextBmore textBmo^re text after pos
-  let automergeBlockCount = i - 1
+  let automergeBlockCount = i - offset
 
   // <p>text</p><p>more text</p><p>mo^re text after pos</p>
 
@@ -42,7 +56,7 @@ export const automergeToProsemirrorNumber = (
 
 export const prosemirrorToAutomergeNumber = (
   position: number,
-  doc: AutomergeDoc,
+  text: AutomergeText,
   state: EditorState
 ) => {
   let idx = 0
@@ -79,7 +93,7 @@ export const prosemirrorToAutomergeNumber = (
    * UNBREAK COMMENT HERE
    */
 
-  let am2pm = automergeToProsemirrorNumber(amPosition, doc)
+  let am2pm = automergeToProsemirrorNumber(amPosition, text)
 
   console.log({
     proseMirrorPosition: position,
@@ -110,11 +124,11 @@ export const prosemirrorToAutomergeNumber = (
 
 export const prosemirrorToAutomerge = (
   position: { from: number; to: number },
-  doc: AutomergeDoc, /* for debugging purposes only */
+  text: AutomergeText, /* for debugging purposes only */
   state: EditorState
 ) => { //: { start: number; end: number } => {
   return {
-    start: prosemirrorToAutomergeNumber(position.from, doc, state),
-    end: prosemirrorToAutomergeNumber(position.to, doc, state),
+    start: prosemirrorToAutomergeNumber(position.from, text, state),
+    end: prosemirrorToAutomergeNumber(position.to, text, state),
   }
 }
