@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 
 import ProseMirror from './ProseMirror'
-import { EditorState } from 'prosemirror-state'
+import { EditorState, Transaction } from 'prosemirror-state'
 import { keymap } from 'prosemirror-keymap'
 import { baseKeymap } from 'prosemirror-commands'
 import { history, redo, undo } from 'prosemirror-history'
@@ -13,11 +13,10 @@ import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRe
 import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransactionToAutomerge'
 import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
 
-export function Editor(props) {
-  const { handle } = props
-  const { attribute } = props
-  const { doc, changeDoc } = props
-  const [state, setState] = React.useState(null)
+export type EditorProps = { handle: any, attribute: any, doc: any, changeDoc: any }
+
+export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
+  const [state, setState] = React.useState<EditorState | null>(null)
 
   useEffect(() => {
     if (!doc) return
@@ -41,13 +40,12 @@ export function Editor(props) {
     // integration, @pvh?
   }, [doc, attribute, handle])
 
-  useEffect((automergeDoc) => {
+  useEffect(() => {
     if (!state) return
 
-    /*
-    doc.change((edits) => {
+    changeDoc((edits: any) => {
       let transaction = convertAutomergeTransactionToProsemirrorTransaction(
-        automergeDoc,
+        doc,
         state,
         edits
       )
@@ -59,7 +57,7 @@ export function Editor(props) {
 
       // remote cursor sync would go here if relevant
     })
-    */
+    
     
     // in upwelling we found that the automerge object wasn't stable enough to
     // use reliably with useEffect, and ended up using a stable integer id for
@@ -71,7 +69,7 @@ export function Editor(props) {
 
   // This takes transactions from prosemirror and updates the automerge doc to
   // match.
-  let dispatchHandler = (transaction) => {
+  let dispatchHandler = (transaction: Transaction) => {
     if (!state) return
 
     prosemirrorTransactionToAutomerge(

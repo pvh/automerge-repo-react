@@ -2,47 +2,47 @@ import Document from '@atjson/document'
 import { InlineAnnotation, BlockAnnotation } from '@atjson/document'
 //import { Upwell, Draft, CommentState } from 'api'
 
-export class Insertion extends InlineAnnotation /*<{
+export class Insertion extends InlineAnnotation<{
   author?: string
   authorColor: string
   text: string
-}> */ {
+}> {
   static vendorPrefix = 'automerge'
   static type = 'insert'
 }
 
-export class Deletion extends InlineAnnotation /*<{
+export class Deletion extends InlineAnnotation<{
   author?: string
   authorColor: string
   text: string
-}>*/ {
+}> {
   static vendorPrefix = 'automerge'
   static type = 'delete'
 }
 
-export class Paragraph extends BlockAnnotation /*<{}>*/ {
+export class Paragraph extends BlockAnnotation<{}> {
   static vendorPrefix = 'automerge'
   static type = 'paragraph'
 }
 
-export class Heading extends BlockAnnotation /*<{
+export class Heading extends BlockAnnotation<{
   level: number
-}>*/ {
+}> {
   static vendorPrefix = 'automerge'
   static type = 'heading'
 }
 
-export class Strong extends InlineAnnotation /*<{}>*/ {
+export class Strong extends InlineAnnotation<{}> {
   static vendorPrefix = 'automerge'
   static type = 'strong'
 }
 
-export class Emphasis extends InlineAnnotation /*<{}>*/ {
+export class Emphasis extends InlineAnnotation<{}> {
   static vendorPrefix = 'automerge'
   static type = 'em'
 }
 
-export class Comment extends InlineAnnotation /*<{}>*/ {
+export class Comment extends InlineAnnotation<{}> {
   static vendorPrefix = 'automerge'
   static type = 'comment'
 }
@@ -59,7 +59,7 @@ export default class AutomergeSource extends Document {
   ]
 
   // This converts an upwell/automerge draft to an atjson document.
-  static fromRaw(text, handle, attribute, parentObjId = '_root') {
+  static fromRaw(text: any, handle: any, attribute: any, parentObjId = '_root') {
 
     // first convert marks to annotations
     let objId = handle.getObjId(parentObjId, attribute)
@@ -67,7 +67,7 @@ export default class AutomergeSource extends Document {
 
     console.log('text', text)
 
-    marks.forEach((m) => {
+    marks.forEach((m: any) => {
       let attrs = {}
       //if (m.type === 'comment') {
         //attrs = doc.comments.get(m.value)
