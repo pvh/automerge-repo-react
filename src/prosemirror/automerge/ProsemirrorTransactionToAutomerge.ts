@@ -215,7 +215,7 @@ export const prosemirrorTransactionToAutomerge = (
       }
     }
 
-    prosemirrorToAutomerge(
+    const cursorPosition = prosemirrorToAutomerge(
       {
         from: transaction.selection.ranges[0].$from.pos,
         to: transaction.selection.ranges[0].$to.pos,

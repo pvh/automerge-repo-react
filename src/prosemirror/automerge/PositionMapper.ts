@@ -31,27 +31,26 @@ export const automergeToProsemirrorNumber = (
     console.log('INDEXOF SHOULD NOT RETURN UNDEFINED; BUG IN AUTOMERGE-JS')
     idx = -1
   }
-  let i = 0
+
+  let automergeBlockPositions = 0
+  let prosemirrorBlockPositions = 1
   while (idx < position && idx !== -1) {
     idx = text.indexOf(BLOCK_MARKER, idx + 1)
     if (idx === undefined) {
       console.log('INDEXOF SHOULD NOT RETURN UNDEFINED; BUG IN AUTOMERGE-JS')
       idx = -1
     }
-    i++
+    automergeBlockPositions++
+    prosemirrorBlockPositions += 2
   }
-
-  // There has to be a more elegant way to do this as part of the above.
-  // If the document starts with a block, we need to account for it below:
-  const offset = (text.indexOf(BLOCK_MARKER, 0) === 0) ? 1 : 0
 
   // this is how many blocks precede the current one.
   // BtextBmore textBmo^re text after pos
-  let automergeBlockCount = i - offset
-
   // <p>text</p><p>more text</p><p>mo^re text after pos</p>
 
-  return position + automergeBlockCount
+  // this is probably wrong, but right now blocks aren't working, so it's hard
+  // to establish what the correct behaviour will be.
+  return position - prosemirrorBlockPositions + automergeBlockPositions + 2
 }
 
 export const prosemirrorToAutomergeNumber = (
@@ -77,7 +76,9 @@ export const prosemirrorToAutomergeNumber = (
     blocks++
   }
 
-  let amPosition = position - blocks + nudge
+  const noBlockNudge = (text.indexOf(BLOCK_MARKER, 0) === 0) ? 0 : 1
+
+  let amPosition = position - blocks + nudge - noBlockNudge
 
   /*-- IN CASE OF POSITION MAPPING ISSUES
    *
