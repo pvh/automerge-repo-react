@@ -17,9 +17,12 @@ export type EditorProps = { handle: any, attribute: any, doc: any, changeDoc: an
 
 export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
   const [state, setState] = React.useState<EditorState | null>(null)
+  const [initialized, setInitialized] = React.useState<boolean>(false)
 
   useEffect(() => {
     if (!doc) return
+    if (initialized) return
+
     let atjsonDoc = PeritextSource.fromRaw(doc[attribute], handle, attribute)
     let renderDoc = ProsemirrorRenderer.render(atjsonDoc)
     let editorConfig = {
@@ -34,11 +37,13 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     let newState = EditorState.create(editorConfig)
     setState(newState)
 
+    setInitialized(true)
+
     // in upwelling we found that the automerge object wasn't stable enough to
     // use reliably with useEffect, and ended up using a stable integer id for
     // the document instead. Not sure what to do with the automerge-repo
     // integration, @pvh?
-  }, [doc, attribute, handle])
+  }, [attribute, handle, doc, initialized])
 
   useEffect(() => {
     if (!state) return
@@ -63,7 +68,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     // use reliably with useEffect, and ended up using a stable integer id for
     // the document instead. Not sure what to do with the automerge-repo
     // integration, @pvh?
-  }, [doc, state])
+  }, [doc, state, changeDoc])
 
   const viewRef = useRef(null)
 
