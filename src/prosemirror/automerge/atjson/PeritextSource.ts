@@ -101,24 +101,26 @@ export default class AutomergeSource extends Document {
     })
 
     // next convert blocks to annotations
-    /*
-    for (let b of doc.blocks) {
+    console.log(handle.textGetBlocks('message'))
+    for (let b of handle.textGetBlocks('message')) {
       if (['paragraph', 'heading'].indexOf(b.type) === -1) b.type = 'paragraph'
       b.type = `-automerge-${b.type}`
       marks.push(b)
     }
-    */
 
+    console.log(marks)
     // Insert a fake paragraph until we have native blocks working.
+    /*
     marks.push({
       start: 0,
       end: text.length,
       type: '-automerge-paragraph',
       attributes: {}
     })
+    */
 
     return new this({
-      content: text.toString(),
+      content: handle.textToString('message'),
       annotations: marks,
     })
   }

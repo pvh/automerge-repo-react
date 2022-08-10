@@ -80,6 +80,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     prosemirrorTransactionToAutomerge(
       transaction,
       doc,
+      handle,
       attribute,
       changeDoc,
       state

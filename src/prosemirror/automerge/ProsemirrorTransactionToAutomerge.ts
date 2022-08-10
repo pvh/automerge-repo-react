@@ -6,6 +6,8 @@ import {
   ReplaceStep,
 } from 'prosemirror-transform'
 import { ChangeSet, AutomergeDoc, AutomergeText } from './AutomergeTypes';
+// @ts-ignore
+import { DocHandle } from 'automerge-repo/src/DocHandle'
 import { prosemirrorToAutomerge } from './PositionMapper'
 
 const emptyChangeSet: ChangeSet = { add: [], del: [] }
@@ -13,6 +15,8 @@ const emptyChangeSet: ChangeSet = { add: [], del: [] }
 function handleReplaceStep(
   step: ReplaceStep,
   text: AutomergeText,
+  doc: AutomergeDoc,
+  handle: DocHandle,
   state: EditorState
 ): ChangeSet {
   let changeSet: ChangeSet = {
@@ -33,6 +37,9 @@ function handleReplaceStep(
 
   if (step.slice) {
     let insOffset = start
+    console.log(step.slice)
+    let sliceSize = step.slice.content.size
+    sliceSize -= step.slice.openStart + step.slice.openEnd
     step.slice.content.forEach((node, idx) => {
       if (node.type.name === 'text' && node.text) {
         changeSet.add.push({
@@ -40,20 +47,29 @@ function handleReplaceStep(
           start,
           end: start + node.text.length,
         })
-        text.insertAt(insOffset, node.text)
+        handle.textInsertAt('/message', insOffset, node.text)
         insOffset += node.text.length
       } else if (['paragraph', 'heading'].indexOf(node.type.name) !== -1) {
-        // this isn't a function, need to implement it somewhere
-        text.insertBlock(insOffset++, node.type.name)
+        if (sliceSize >= 2) {
+          // this isn't a function, need to implement it somewhere
+          console.log({doc, handle, insOffset})
+          //handle.insertBlock(handle.getObjId('/', 'message'), insOffset++, node.type.name)
+          handle.textInsertBlock('/message', insOffset++, node.type.name)
+          console.log('inserted block: ', handle.textGetBlock('/message', insOffset - 1))
 
-        let nodeText = node.textBetween(0, node.content.size)
-        changeSet.add.push({
-          //actor: editableDraft.doc.getActorId(),
-          start,
-          end: start + nodeText.length,
-        })
-        text.insertAt(insOffset, nodeText)
-        insOffset += nodeText.length
+          let nodeText = node.textBetween(0, node.content.size)
+          console.log(`node text: --->${nodeText}<---`)
+          changeSet.add.push({
+            //actor: editableDraft.doc.getActorId(),
+            start,
+            end: start + nodeText.length,
+          })
+          if (nodeText.length > 0) {
+            handle.textInsertAt('/message', insOffset, nodeText)
+            insOffset += nodeText.length
+          }
+          sliceSize -= 2 // account for having effectively added an open and a close tag
+        }
       } else {
         alert(
           `Hi! We would love to insert that text (and other stuff), but
@@ -185,6 +201,7 @@ function handleReplaceAroundStep(
 export const prosemirrorTransactionToAutomerge = (
   transaction: Transaction,
   doc: AutomergeDoc,
+  handle: DocHandle,
   attribute: string, //: a string, like "message"
   changeDoc: Function, //: a change function. God help us.
   state: EditorState,
@@ -196,7 +213,7 @@ export const prosemirrorTransactionToAutomerge = (
 
     for (let step of transaction.steps) {
       if (step instanceof ReplaceStep) {
-        let replaceChanges = handleReplaceStep(step, text, state)
+        let replaceChanges = handleReplaceStep(step, text, doc, handle, state)
         changeSets = changeSets.concat(replaceChanges)
       } else if (step instanceof AddMarkStep) {
         let addMarkChanges = handleAddMarkStep(step, text, state)
