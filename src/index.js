@@ -6,21 +6,21 @@ import reportWebVitals from './reportWebVitals';
 
 import { RepoContext } from './hooks';
 
-import LocalForageStorageAdapter from 'automerge-repo/src/storage/interfaces/LocalForageStorageAdapter'
-import BroadcastChannelNetworkAdapter from 'automerge-repo/src/network/interfaces/BroadcastChannelNetworkAdapter'
-import BrowserWebSocketClientAdapter from 'automerge-repo/src/network/interfaces/BrowserWebSocketClientAdapter'
-
-import BrowserRepo from 'automerge-repo/src/BrowserRepo';
-import * as Automerge from 'automerge-js'
-
 import localforage from 'localforage'
+
+import { BrowserRepo, 
+  LocalForageStorageAdapter,
+  BroadcastChannelNetworkAdapter,
+  BrowserWebSocketClientAdapter } from 'automerge-repo'
+
+import * as Automerge from 'automerge-js'
 
 async function getRepo() {
   return await BrowserRepo({
     storage: new LocalForageStorageAdapter(),
     network: [
       new BroadcastChannelNetworkAdapter(),
-      new BrowserWebSocketClientAdapter('ws://localhost:3000')
+      // new BrowserWebSocketClientAdapter('ws://localhost:3030')
     ]
   })
 }
