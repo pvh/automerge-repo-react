@@ -10,7 +10,7 @@ const convertAddToStep: (
   doc: AutomergeDoc
 ) => (added: ChangeSetAddition) => ReplaceStep = (doc: AutomergeDoc) => {
    return (added: ChangeSetAddition) => {
-    let text = doc.text.substring(added.start, added.end)
+    let text = doc['message'].substring(added.start, added.end)
     let { from } = automergeToProsemirror(added, doc)
     let nodes = []
     let blocks = text.split(BLOCK_MARKER)
@@ -77,11 +77,12 @@ export const convertAutomergeTransactionToProsemirrorTransaction: (
   state: EditorState,
   edits: AutomergeTransaction
 ) => {
-  if (!edits.changes) return
+  console.log('wahey, here are edits', edits)
+  if (!edits) return
 
   let tr = state.tr
 
-  for (const changeset of edits.changes) {
+  for (const changeset of edits) {
     //{add: {start: 3, end: 4}, del: []}
 
     changeset.add.map(convertAddToStep(doc)).map((step) => tr.step(step))

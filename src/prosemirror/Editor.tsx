@@ -45,6 +45,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     // integration, @pvh?
   }, [attribute, handle, doc, initialized])
 
+  /*
   useEffect(() => {
     if (!state) return
 
@@ -69,6 +70,43 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     // the document instead. Not sure what to do with the automerge-repo
     // integration, @pvh?
   }, [doc, state, changeDoc])
+  */
+
+  useEffect(() => {
+    if (!state) return
+
+    console.log('setting this up')
+
+    let funfun = (args: any) => {
+      if (args.attribution) {
+        console.log('my change!', args)
+      } else {
+        console.log('no attribution :(')
+      }
+
+      if (!args.attribution) return
+
+      const transaction = convertAutomergeTransactionToProsemirrorTransaction(
+        doc,
+        state,
+        args.attribution
+      )
+
+      console.log('transaction!', transaction)
+
+      if (transaction) {
+        let newState = state.apply(transaction)
+        setState(newState)
+      }
+    }
+
+    handle.on('change', funfun) 
+
+    return (() => {
+      console.log('unsubscribing')
+      handle.off('change', funfun)
+    })
+  }, [doc, handle, state])
 
   const viewRef = useRef(null)
 
