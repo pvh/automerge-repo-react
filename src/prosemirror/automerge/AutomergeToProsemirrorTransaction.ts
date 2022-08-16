@@ -5,12 +5,16 @@ import { automergeToProsemirror, BLOCK_MARKER } from './PositionMapper'
 
 import { EditorState, Transaction } from 'prosemirror-state'
 import { AutomergeDoc, AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion } from './AutomergeTypes'
+import DocHandle from 'automerge-repo/src/DocHandle'
 
 const convertAddToStep: (
-  doc: AutomergeDoc
-) => (added: ChangeSetAddition) => ReplaceStep = (doc: AutomergeDoc) => {
+  doc: AutomergeDoc,
+  handle: DocHandle,
+) => (added: ChangeSetAddition) => ReplaceStep = (doc: AutomergeDoc, handle: DocHandle) => {
    return (added: ChangeSetAddition) => {
-    let text = doc['message'].substring(added.start, added.end)
+    console.log('string', handle.textToString('/message'))
+    const docString = handle.textToString('/message')
+    let text = docString.substring(added.start, added.end)
     let { from } = automergeToProsemirror(added, doc)
     let nodes = []
     let blocks = text.split(BLOCK_MARKER)
@@ -70,10 +74,12 @@ const convertDeleteToStep: (
 
 export const convertAutomergeTransactionToProsemirrorTransaction: (
   doc: AutomergeDoc,
+  handle: DocHandle,
   state: EditorState,
   edits: AutomergeTransaction
 ) => Transaction | undefined = (
   doc: AutomergeDoc,
+  handle: DocHandle,
   state: EditorState,
   edits: AutomergeTransaction
 ) => {
@@ -85,8 +91,8 @@ export const convertAutomergeTransactionToProsemirrorTransaction: (
   for (const changeset of edits) {
     //{add: {start: 3, end: 4}, del: []}
 
-    changeset.add.map(convertAddToStep(doc)).map((step) => tr.step(step))
-    changeset.del.map(convertDeleteToStep(doc)).map((step) => tr.step(step))
+    changeset.add.map(convertAddToStep(doc, handle)).map((step) => tr.step(step))
+    changeset.del.map(convertDeleteToStep(handle)).map((step) => tr.step(step))
   }
 
   // This is pretty inefficient. This whole changes thing kind of needs a
