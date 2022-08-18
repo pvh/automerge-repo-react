@@ -4,18 +4,18 @@ import { schema } from 'prosemirror-schema-basic'
 import { automergeToProsemirror, BLOCK_MARKER } from './PositionMapper'
 
 import { EditorState, Transaction } from 'prosemirror-state'
-import { AutomergeDoc, AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion } from './AutomergeTypes'
+import { AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion } from './AutomergeTypes'
 import DocHandle from 'automerge-repo/src/DocHandle'
+import { Automerge } from 'automerge-wasm-pack'
 
 const convertAddToStep: (
-  doc: AutomergeDoc,
   handle: DocHandle,
-) => (added: ChangeSetAddition) => ReplaceStep = (doc: AutomergeDoc, handle: DocHandle) => {
+) => (added: ChangeSetAddition) => ReplaceStep = (handle: DocHandle) => {
    return (added: ChangeSetAddition) => {
-    console.log('string', handle.textToString('/message'))
-    const docString = handle.textToString('/message')
+    console.log('string', handle.textToString('message'))
+    const docString = handle.textToString('message')
     let text = docString.substring(added.start, added.end)
-    let { from } = automergeToProsemirror(added, doc)
+    let { from } = automergeToProsemirror(added, docString)
     let nodes = []
     let blocks = text.split(BLOCK_MARKER)
 
@@ -56,15 +56,16 @@ const convertAddToStep: (
 }
 
 const convertDeleteToStep: (
-  doc: AutomergeDoc
-) => (deleted: ChangeSetDeletion) => ReplaceStep = (doc: AutomergeDoc) => {
+  handle: DocHandle
+) => (deleted: ChangeSetDeletion) => ReplaceStep = (handle: DocHandle) => {
   // FIXME this should work, but the attribution steps we're getting
   // back from automerge are incorrect, so it breaks.
   return (deleted) => {
     let text = deleted.val
+    const docString = handle.textToString('message')
     let { from, to } = automergeToProsemirror(
       { start: deleted.pos, end: deleted.pos + text.length },
-      doc
+      docString
     )
     let fragment = Fragment.fromArray([])
     let slice = new Slice(fragment, 0, 0)
@@ -73,12 +74,12 @@ const convertDeleteToStep: (
 }
 
 export const convertAutomergeTransactionToProsemirrorTransaction: (
-  doc: AutomergeDoc,
+  doc: Automerge,
   handle: DocHandle,
   state: EditorState,
   edits: AutomergeTransaction
 ) => Transaction | undefined = (
-  doc: AutomergeDoc,
+  doc: Automerge,
   handle: DocHandle,
   state: EditorState,
   edits: AutomergeTransaction
@@ -91,7 +92,7 @@ export const convertAutomergeTransactionToProsemirrorTransaction: (
   for (const changeset of edits) {
     //{add: {start: 3, end: 4}, del: []}
 
-    changeset.add.map(convertAddToStep(doc, handle)).map((step) => tr.step(step))
+    changeset.add.map(convertAddToStep(handle)).map((step) => tr.step(step))
     changeset.del.map(convertDeleteToStep(handle)).map((step) => tr.step(step))
   }
 

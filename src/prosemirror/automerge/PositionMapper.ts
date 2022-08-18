@@ -3,14 +3,12 @@
 
 import { EditorState } from "prosemirror-state";
 
-import { AutomergeText } from './AutomergeTypes';
-
 // foot-gun and could do with some tweaking.
 export const BLOCK_MARKER = '\uFFFC'
 
 export const automergeToProsemirror = (
   step: { start: number; end: number },
-  text: AutomergeText
+  text: string
 ) => {
   return {
     from: automergeToProsemirrorNumber(step.start, text),
@@ -20,7 +18,7 @@ export const automergeToProsemirror = (
 
 export const automergeToProsemirrorNumber = (
   position: number,
-  text: AutomergeText
+  text: string
 ) => {
   // first, count how many paragraphs we have. n.b. that this won't work once/if
   // we have nested blocks.
@@ -55,7 +53,7 @@ export const automergeToProsemirrorNumber = (
 
 export const prosemirrorToAutomergeNumber = (
   position: number,
-  text: AutomergeText,
+  text: string,
   state: EditorState
 ) => {
   let idx = 0
@@ -125,7 +123,7 @@ export const prosemirrorToAutomergeNumber = (
 
 export const prosemirrorToAutomerge = (
   position: { from: number; to: number },
-  text: AutomergeText, /* for debugging purposes only */
+  text: string, /* for debugging purposes only */
   state: EditorState
 ) => { //: { start: number; end: number } => {
   return {

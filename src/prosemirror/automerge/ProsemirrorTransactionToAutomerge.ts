@@ -5,7 +5,7 @@ import {
   ReplaceAroundStep,
   ReplaceStep,
 } from 'prosemirror-transform'
-import { ChangeSet, AutomergeDoc, AutomergeText } from './AutomergeTypes';
+import { ChangeSet } from './AutomergeTypes';
 // @ts-ignore
 import { DocHandle } from 'automerge-repo/src/DocHandle'
 import { prosemirrorToAutomerge } from './PositionMapper'
@@ -14,8 +14,6 @@ const emptyChangeSet: ChangeSet = { add: [], del: [] }
 
 function handleReplaceStep(
   step: ReplaceStep,
-  text: AutomergeText,
-  doc: AutomergeDoc,
   handle: DocHandle,
   state: EditorState
 ): ChangeSet {
@@ -24,10 +22,11 @@ function handleReplaceStep(
     del: [],
   }
 
-  let { start, end } = prosemirrorToAutomerge(step, text, state)
+  const docString = handle.textToString('message')
+  let { start, end } = prosemirrorToAutomerge(step, docString, state)
 
   if (end !== start) {
-    let deleted = text.deleteAt(start, end - start)
+    let deleted = handle.doc["message"].deleteAt(start, end - start)
     changeSet.del.push({
       //actor: doc.getActorId(),
       pos: start,
@@ -52,7 +51,7 @@ function handleReplaceStep(
       } else if (['paragraph', 'heading'].indexOf(node.type.name) !== -1) {
         if (sliceSize >= 2) {
           // this isn't a function, need to implement it somewhere
-          console.log({doc, handle, insOffset})
+          console.log({handle, insOffset})
           //handle.insertBlock(handle.getObjId('/', 'message'), insOffset++, node.type.name)
           handle.textInsertBlock('/message', insOffset++, node.type.name)
           console.log('inserted block: ', handle.textGetBlock('/message', insOffset - 1))
@@ -85,10 +84,12 @@ function handleReplaceStep(
 
 function handleAddMarkStep(
   step: AddMarkStep,
-  text: AutomergeText,
+  handle: DocHandle,
   state: EditorState
 ) { //: ChangeSet {
-  let { start, end } = prosemirrorToAutomerge(step, text, state)
+  const text = handle.doc["message"]
+  const docString = handle.textToString('message')
+  let { start, end } = prosemirrorToAutomerge(step, docString, state)
   let mark = step.mark
 
   if (mark.type.name === 'comment') {
@@ -109,11 +110,13 @@ function handleAddMarkStep(
 
 function handleRemoveMarkStep(
   step: RemoveMarkStep,
-  text: AutomergeText,
+  handle: DocHandle,
   state: EditorState
 ) { //: ChangeSet {
+  const text = handle.doc["message"]
+  const docString = handle.textToString('message')
   // TK not implemented because automerge doesn't support removing marks yet
-  let { start, end } = prosemirrorToAutomerge(step, text, state)
+  let { start, end } = prosemirrorToAutomerge(step, docString, state)
   let mark = step.mark
   if (mark.type.name === 'strong' || mark.type.name === 'em') {
     text.mark(mark.type.name, `(${start}..${end})`, false)
@@ -125,10 +128,12 @@ function handleRemoveMarkStep(
 
 function handleReplaceAroundStep(
   step: ReplaceAroundStep,
-  text: AutomergeText,
+  handle: DocHandle,
   state: EditorState
 ): ChangeSet {
 
+  const text = handle.doc["message"]
+  const docString = handle.textToString('message')
   // This is just a guard to prevent us from handling a ReplaceAroundStep
   // that isn't simply replacing the container, because implementing that
   // is complicated and I can't think of an example where this would be
@@ -158,7 +163,7 @@ function handleReplaceAroundStep(
 
   let { start: gapStart, end: gapEnd } = prosemirrorToAutomerge(
     { from: step.gapFrom, to: step.gapTo },
-    text,
+    docString,
     state
   )
 
@@ -200,31 +205,27 @@ function handleReplaceAroundStep(
 
 export const prosemirrorTransactionToAutomerge = (
   transaction: Transaction,
-  doc: AutomergeDoc,
   handle: DocHandle,
-  attribute: string, //: a string, like "message"
   changeDoc: Function, //: a change function. God help us.
   state: EditorState,
 ) => {
   let changeSets: ChangeSet[] = []
 
-  changeDoc((d: AutomergeDoc) => {
-    const text = d[attribute]
-
+  changeDoc((d: any) => {    
     for (let step of transaction.steps) {
       if (step instanceof ReplaceStep) {
-        let replaceChanges = handleReplaceStep(step, text, doc, handle, state)
+        let replaceChanges = handleReplaceStep(step, handle, state)
         changeSets = changeSets.concat(replaceChanges)
       } else if (step instanceof AddMarkStep) {
-        let addMarkChanges = handleAddMarkStep(step, text, state)
+        let addMarkChanges = handleAddMarkStep(step, handle, state)
         changeSets = changeSets.concat(addMarkChanges)
       } else if (step instanceof RemoveMarkStep) {
-        let removeMarkChanges = handleRemoveMarkStep(step, text, state)
+        let removeMarkChanges = handleRemoveMarkStep(step, handle, state)
         changeSets = changeSets.concat(removeMarkChanges)
       } else if (step instanceof ReplaceAroundStep) {
         let replaceAroundStepChanges = handleReplaceAroundStep(
           step,
-          text,
+          handle,
           state
         )
 
@@ -232,12 +233,13 @@ export const prosemirrorTransactionToAutomerge = (
       }
     }
 
+    const docString = handle.textToString('message')
     const cursorPosition = prosemirrorToAutomerge(
       {
         from: transaction.selection.ranges[0].$from.pos,
         to: transaction.selection.ranges[0].$to.pos,
       },
-      text,
+      docString,
       state
     )
 
