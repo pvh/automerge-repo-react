@@ -1,4 +1,4 @@
-import Document from '@atjson/document'
+import Document, { Annotation } from '@atjson/document'
 import { InlineAnnotation, BlockAnnotation } from '@atjson/document'
 //import { Upwell, Draft, CommentState } from 'api'
 
@@ -62,10 +62,12 @@ export default class AutomergeSource extends Document {
   static fromRaw(text: any, handle: any, attribute: any, parentObjId = '_root') {
 
     // first convert marks to annotations
-    let objId = handle.getObjId(parentObjId, attribute)
-    let marks = handle.getMarks(objId)
+    const objId = handle.getObjId(parentObjId, attribute)
+    const marks = handle.textGetMarks(objId)
 
-    console.log('text', text)
+    console.log({text, marks})
+
+    let annotations: any[] = []
 
     marks.forEach((m: any) => {
       let attrs = {}
@@ -92,7 +94,7 @@ export default class AutomergeSource extends Document {
       // the mark here (id? presumably?) Or I guess just the mark itself?) so
       // that we can do direct actions on the Upwell draft via the atjson annotation
       // as a proxy.
-      marks.push({
+      annotations.push({
         start: m.start,
         end: m.end,
         type: `-automerge-${m.type}`,
@@ -105,7 +107,7 @@ export default class AutomergeSource extends Document {
     for (let b of handle.textGetBlocks('message')) {
       if (['paragraph', 'heading'].indexOf(b.type) === -1) b.type = 'paragraph'
       b.type = `-automerge-${b.type}`
-      marks.push(b)
+      annotations.push(b)
     }
 
     console.log(marks)
@@ -121,7 +123,7 @@ export default class AutomergeSource extends Document {
 
     return new this({
       content: handle.textToString('message'),
-      annotations: marks,
+      annotations,
     })
   }
 }

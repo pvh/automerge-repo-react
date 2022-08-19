@@ -101,7 +101,7 @@ function handleAddMarkStep(
       mark.attrs.author.id
     )
   } else {
-    text.mark(mark.type.name, `(${start}..${end})`, true)
+    handle.textMark('/message', `(${start}..${end})`, mark.type.name, true)
   }
 
   // no way to encode mark changes in automerge attribution changesets (just yet)

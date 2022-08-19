@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react'
 
 import ProseMirror from './ProseMirror'
-import { EditorState, Transaction } from 'prosemirror-state'
+import { Command, EditorState, Transaction } from 'prosemirror-state'
 import { keymap } from 'prosemirror-keymap'
-import { baseKeymap } from 'prosemirror-commands'
+import { baseKeymap, toggleMark } from 'prosemirror-commands'
 import { history, redo, undo } from 'prosemirror-history'
 import { schema } from 'prosemirror-schema-basic'
 
@@ -12,8 +12,21 @@ import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRe
 
 import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransactionToAutomerge'
 import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
+import { MarkType } from 'prosemirror-model'
 
 export type EditorProps = { handle: any, attribute: any, doc: any, changeDoc: any }
+
+const toggleBold = toggleMarkCommand(schema.marks.strong)
+const toggleItalic = toggleMarkCommand(schema.marks.em)
+
+function toggleMarkCommand(mark: MarkType): Command {
+  return (
+    state: EditorState,
+    dispatch: ((tr: Transaction) => void) | undefined
+  ) => {
+    return toggleMark(mark)(state, dispatch)
+  }
+}
 
 export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
   const [state, setState] = React.useState<EditorState | null>(null)
@@ -30,7 +43,13 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
       doc: renderDoc,
       history,
       plugins: [
-        keymap({...baseKeymap, 'Mod-z': undo, 'Mod-y': redo, 'Mod-Shift-z': redo})
+        keymap({
+          ...baseKeymap,
+          'Mod-b': toggleBold,
+          'Mod-i': toggleItalic,
+          'Mod-z': undo,
+          'Mod-y': redo,
+          'Mod-Shift-z': redo})
       ]
     }
 
