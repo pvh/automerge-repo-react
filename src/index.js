@@ -45,6 +45,7 @@ async function getRootDocument(repo, initFunction) {
 
 const initFunction = (d) => {
   d.message = new Automerge.Text("Hello World.")
+  d.second = new Automerge.Text("Here's a second editor.")
   d.count = 0
   d.items = []
 }

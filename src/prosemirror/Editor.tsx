@@ -124,7 +124,7 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
     return (() => {
       handle.off('change', funfun)
     })
-  }, [doc, handle, state])
+  }, [doc, attribute, handle, state])
 
   const viewRef = useRef(null)
 

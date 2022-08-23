@@ -13,6 +13,8 @@ function App({ rootDocumentId }) {
     <div className="App">
       <header className="App-header">
         <Editor doc={doc} changeDoc={changeDoc} handle={handle} attribute={'message'}/>
+        <br></br>
+        <Editor doc={doc} changeDoc={changeDoc} handle={handle} attribute={'second'}/>
       </header>
     </div>
   );
