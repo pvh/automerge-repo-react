@@ -8,13 +8,14 @@ import { AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion } from './Au
 import DocHandle from 'automerge-repo/dist/DocHandle'
 import * as Automerge from 'automerge-js'
 import { RootDocument } from '../Editor'
+import { textToString } from '../RichTextUtils'
 
 const convertAddToStep: (
   handle: DocHandle<RootDocument>,
 ) => (added: ChangeSetAddition) => ReplaceStep = (handle: DocHandle<RootDocument>) => {
    return (added: ChangeSetAddition) => {
-    console.log('string', handle.textToString('message'))
-    const docString = handle.textToString('message')
+    console.log('string', textToString(handle.doc!, 'message'))
+    const docString = textToString(handle.doc!, 'message')
     let text = docString.substring(added.start, added.end)
     let { from } = automergeToProsemirror(added, docString)
     let nodes = []
@@ -63,7 +64,7 @@ const convertDeleteToStep: (
   // back from automerge are incorrect, so it breaks.
   return (deleted) => {
     let text = deleted.val
-    const docString = handle.textToString('message')
+    const docString = textToString(handle.doc!, 'message')
     let { from, to } = automergeToProsemirror(
       { start: deleted.pos, end: deleted.pos + text.length },
       docString

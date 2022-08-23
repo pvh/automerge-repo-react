@@ -14,8 +14,9 @@ import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransa
 import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
 import { MarkType } from 'prosemirror-model'
 import * as Automerge from 'automerge-js'
+import { DocHandle } from 'automerge-repo'
 
-export type EditorProps = { handle: any, attribute: any, doc: any, changeDoc: any }
+export type EditorProps = { handle: DocHandle<RootDocument>, attribute: 'message' /*lol*/, doc: Automerge.Doc<RootDocument>, changeDoc: any }
 
 const toggleBold = toggleMarkCommand(schema.marks.strong)
 const toggleItalic = toggleMarkCommand(schema.marks.em)
@@ -43,7 +44,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     if (!doc) return
     if (initialized) return
 
-    let atjsonDoc = PeritextSource.fromRaw(doc[attribute], handle, attribute)
+    let atjsonDoc = PeritextSource.fromRaw(doc[attribute], doc, attribute)
     let renderDoc = ProsemirrorRenderer.render(atjsonDoc)
     let editorConfig = {
       schema,
@@ -144,7 +145,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
 
     prosemirrorTransactionToAutomerge(
       transaction,
-      handle,
+      doc,
       changeDoc,
       state
     )

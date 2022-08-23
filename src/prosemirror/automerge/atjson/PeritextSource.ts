@@ -1,6 +1,7 @@
-import Document, { Annotation } from '@atjson/document'
-import { InlineAnnotation, BlockAnnotation } from '@atjson/document'
-//import { Upwell, Draft, CommentState } from 'api'
+import Document, { InlineAnnotation, BlockAnnotation } from '@atjson/document'
+import * as Automerge from 'automerge-js'
+import { RootDocument } from '../../Editor'
+import { getObjId, textGetBlocks, textGetMarks, textToString } from '../../RichTextUtils'
 
 export class Insertion extends InlineAnnotation<{
   author?: string
@@ -59,11 +60,11 @@ export default class AutomergeSource extends Document {
   ]
 
   // This converts an upwell/automerge draft to an atjson document.
-  static fromRaw(text: any, handle: any, attribute: any, parentObjId = '_root') {
+  static fromRaw(text: Automerge.Text, doc: Automerge.Doc<RootDocument>, attribute: any, parentObjId = '_root') {
 
     // first convert marks to annotations
-    const objId = handle.getObjId(parentObjId, attribute)
-    const marks = handle.textGetMarks(objId)
+    const objId = getObjId(doc, parentObjId, attribute)
+    const marks = textGetMarks(doc, objId)
 
     console.log({text, marks})
 
@@ -103,8 +104,8 @@ export default class AutomergeSource extends Document {
     })
 
     // next convert blocks to annotations
-    console.log(handle.textGetBlocks('message'))
-    for (let b of handle.textGetBlocks('message')) {
+    console.log(textGetBlocks(doc, 'message'))
+    for (let b of textGetBlocks(doc, 'message')) {
       if (['paragraph', 'heading'].indexOf(b.type) === -1) b.type = 'paragraph'
       b.type = `-automerge-${b.type}`
       annotations.push(b)
@@ -122,7 +123,7 @@ export default class AutomergeSource extends Document {
     */
 
     return new this({
-      content: handle.textToString('message'),
+      content: textToString(doc, 'message'),
       annotations,
     })
   }
