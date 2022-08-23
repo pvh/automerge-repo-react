@@ -4,14 +4,13 @@ import { schema } from 'prosemirror-schema-basic'
 import { automergeToProsemirror, BLOCK_MARKER } from './PositionMapper'
 
 import { EditorState, Transaction } from 'prosemirror-state'
-import { AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion } from './AutomergeTypes'
+import { AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion, TextKeyOf } from './AutomergeTypes'
 import * as Automerge from 'automerge-js'
-import { RootDocument } from '../Editor'
 import { textToString } from '../RichTextUtils'
 import { Doc } from 'automerge-js'
 
-const convertAddToStep = (doc: Doc<RootDocument>, added: ChangeSetAddition): ReplaceStep => {
-  const docString = textToString(doc, 'message')
+const convertAddToStep = <T>(doc: Doc<T>, attribute: keyof T, added: ChangeSetAddition): ReplaceStep => {
+  const docString = textToString(doc, attribute as string)
   let text = docString.substring(added.start, added.end)
   let { from } = automergeToProsemirror(added, docString)
   let nodes = []
@@ -53,11 +52,11 @@ const convertAddToStep = (doc: Doc<RootDocument>, added: ChangeSetAddition): Rep
 }
 
 
-const convertDeleteToStep = (doc: Doc<RootDocument>, deleted: ChangeSetDeletion): ReplaceStep => {
+const convertDeleteToStep = <T>(doc: Doc<T>, attribute: keyof T, deleted: ChangeSetDeletion): ReplaceStep => {
   // FIXME this should work, but the attribution steps we're getting
   // back from automerge are incorrect, so it breaks.
   let text = deleted.val
-  const docString = textToString(doc, 'message')
+  const docString = textToString(doc, attribute as string)
   let { from, to } = automergeToProsemirror(
     { start: deleted.pos, end: deleted.pos + text.length },
     docString
@@ -67,23 +66,20 @@ const convertDeleteToStep = (doc: Doc<RootDocument>, deleted: ChangeSetDeletion)
   return new ReplaceStep(from, to, slice)
 }
 
-export const convertAutomergeTransactionToProsemirrorTransaction: (
-  doc: Automerge.Doc<RootDocument>,
+export function convertAutomergeTransactionToProsemirrorTransaction<T>(
+  doc: Automerge.Doc<T>,
+  attribute: TextKeyOf<T>,
   state: EditorState,
   edits: AutomergeTransaction
-) => Transaction | undefined = (
-  doc: Doc<RootDocument>,
-  state: EditorState,
-  edits: AutomergeTransaction
-) => {
+): Transaction | undefined {
   if (!edits) return
 
   let tr = state.tr
 
   for (const changeset of edits) {
     //{add: {start: 3, end: 4}, del: []}
-    changeset.add.map((step) => convertAddToStep(doc, step)).map((step) => tr.step(step))
-    changeset.del.map((step) => convertDeleteToStep(doc, step)).map((step) => tr.step(step))
+    changeset.add.map((step) => convertAddToStep(doc, attribute, step)).map((step) => tr.step(step))
+    changeset.del.map((step) => convertDeleteToStep(doc, attribute, step)).map((step) => tr.step(step))
   }
 
   // This is pretty inefficient. This whole changes thing kind of needs a

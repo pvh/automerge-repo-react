@@ -15,8 +15,9 @@ import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge
 import { MarkType } from 'prosemirror-model'
 import * as Automerge from 'automerge-js'
 import { DocHandle, DocHandleEventArg } from 'automerge-repo'
+import { TextKeyOf } from './automerge/AutomergeTypes'
 
-export type EditorProps = { handle: DocHandle<RootDocument>, attribute: 'message' /*lol*/, doc: Automerge.Doc<RootDocument>, changeDoc: any }
+export type EditorProps<T> = { handle: DocHandle<T>, attribute: TextKeyOf<T>, doc: Automerge.Doc<T>, changeDoc: any }
 
 const toggleBold = toggleMarkCommand(schema.marks.strong)
 const toggleItalic = toggleMarkCommand(schema.marks.em)
@@ -36,7 +37,7 @@ export interface RootDocument {
   details: { name: string, fun: boolean }
 }
 
-export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
+export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
   const [state, setState] = React.useState<EditorState | null>(null)
   const [initialized, setInitialized] = React.useState<boolean>(false)
 
@@ -44,7 +45,10 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     if (!doc) return
     if (initialized) return
 
-    let atjsonDoc = PeritextSource.fromRaw(doc[attribute], doc, attribute)
+    // for whatever reason the typesystem can't follow our maze here
+    // but i promise, this is good!
+    const text: Automerge.Text = doc[attribute] as any
+    let atjsonDoc = PeritextSource.fromRaw(text, doc, attribute)
     let renderDoc = ProsemirrorRenderer.render(atjsonDoc)
     let editorConfig = {
       schema,
@@ -73,7 +77,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
   }, [attribute, handle, doc, initialized])
 
   /*
-  useEffect(() => {
+  useEffect(() => { 
     if (!state) return
 
     changeDoc((edits: any) => {
@@ -101,9 +105,10 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
 
   useEffect(() => {
     if (!state) return
-    let funfun = (args: DocHandleEventArg<RootDocument>) => {
+    let funfun = (args: DocHandleEventArg<T>) => {
       const transaction = convertAutomergeTransactionToProsemirrorTransaction(
         doc,
+        attribute,
         state,
         args.attribution as any
       )
@@ -131,6 +136,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     prosemirrorTransactionToAutomerge(
       transaction,
       doc,
+      attribute,
       changeDoc,
       state
     )

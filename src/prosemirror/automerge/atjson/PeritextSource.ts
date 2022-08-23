@@ -1,7 +1,7 @@
 import Document, { InlineAnnotation, BlockAnnotation } from '@atjson/document'
 import * as Automerge from 'automerge-js'
-import { RootDocument } from '../../Editor'
 import { getObjId, textGetBlocks, textGetMarks, textToString } from '../../RichTextUtils'
+import { TextKeyOf } from '../AutomergeTypes'
 
 export class Insertion extends InlineAnnotation<{
   author?: string
@@ -60,7 +60,7 @@ export default class AutomergeSource extends Document {
   ]
 
   // This converts an upwell/automerge draft to an atjson document.
-  static fromRaw(text: Automerge.Text, doc: Automerge.Doc<RootDocument>, attribute: any, parentObjId = '_root') {
+  static fromRaw<T>(text: Automerge.Text, doc: Automerge.Doc<T>, attribute: TextKeyOf<T>, parentObjId = '_root') {
 
     // first convert marks to annotations
     const objId = getObjId(doc, parentObjId, attribute)
@@ -102,7 +102,7 @@ export default class AutomergeSource extends Document {
     })
 
     // next convert blocks to annotations
-    for (let b of textGetBlocks(doc, 'message')) {
+    for (let b of textGetBlocks(doc, attribute)) {
       if (['paragraph', 'heading'].indexOf(b.type) === -1) b.type = 'paragraph'
       b.type = `-automerge-${b.type}`
       annotations.push(b)
@@ -119,7 +119,7 @@ export default class AutomergeSource extends Document {
     */
 
     return new this({
-      content: textToString(doc, 'message'),
+      content: textToString(doc, attribute),
       annotations,
     })
   }
