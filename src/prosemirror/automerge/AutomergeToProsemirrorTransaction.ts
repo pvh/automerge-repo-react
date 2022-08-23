@@ -5,12 +5,13 @@ import { automergeToProsemirror, BLOCK_MARKER } from './PositionMapper'
 
 import { EditorState, Transaction } from 'prosemirror-state'
 import { AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion } from './AutomergeTypes'
-import DocHandle from 'automerge-repo/src/DocHandle'
-import { Automerge } from 'automerge-wasm-pack'
+import DocHandle from 'automerge-repo/dist/DocHandle'
+import * as Automerge from 'automerge-js'
+import { RootDocument } from '../Editor'
 
 const convertAddToStep: (
-  handle: DocHandle,
-) => (added: ChangeSetAddition) => ReplaceStep = (handle: DocHandle) => {
+  handle: DocHandle<RootDocument>,
+) => (added: ChangeSetAddition) => ReplaceStep = (handle: DocHandle<RootDocument>) => {
    return (added: ChangeSetAddition) => {
     console.log('string', handle.textToString('message'))
     const docString = handle.textToString('message')
@@ -56,8 +57,8 @@ const convertAddToStep: (
 }
 
 const convertDeleteToStep: (
-  handle: DocHandle
-) => (deleted: ChangeSetDeletion) => ReplaceStep = (handle: DocHandle) => {
+  handle: DocHandle<RootDocument>
+) => (deleted: ChangeSetDeletion) => ReplaceStep = (handle: DocHandle<RootDocument>) => {
   // FIXME this should work, but the attribution steps we're getting
   // back from automerge are incorrect, so it breaks.
   return (deleted) => {
@@ -74,13 +75,13 @@ const convertDeleteToStep: (
 }
 
 export const convertAutomergeTransactionToProsemirrorTransaction: (
-  doc: Automerge,
-  handle: DocHandle,
+  doc: Automerge.Doc<RootDocument>,
+  handle: DocHandle<RootDocument>,
   state: EditorState,
   edits: AutomergeTransaction
 ) => Transaction | undefined = (
-  doc: Automerge,
-  handle: DocHandle,
+  doc: Automerge.Doc<RootDocument>,
+  handle: DocHandle<RootDocument>,
   state: EditorState,
   edits: AutomergeTransaction
 ) => {

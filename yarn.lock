@@ -2580,12 +2580,12 @@ atob@^2.1.2:
   resolved "https://registry.npmjs.org/atob/-/atob-2.1.2.tgz"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-automerge-js@^0.1.5:
-  version "0.1.5"
-  resolved "https://registry.npmjs.org/automerge-js/-/automerge-js-0.1.5.tgz"
-  integrity sha512-DQQ2jFlmQBMErCgT8ipME41fdyuPhemZyEgKwWsb4hJbbmS0FON2WISTKtUBgHUFnTtTHXpouOwNzIyZXIC2YQ==
+automerge-js@^0.1.10:
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/automerge-js/-/automerge-js-0.1.10.tgz#b54012503cc2a047aa883f541dcf4c5fd24aa9e0"
+  integrity sha512-o9B2s/VTubDTqO3DDDDjnqRYS0ZH68HceisViC+4icOeZIF7t1emdh5jBlSJj8BsVTCHE/iI1NEhoKsLShG/mQ==
   dependencies:
-    automerge-types "0.1.4"
+    automerge-types "0.1.5"
     uuid "^8.3"
 
 automerge-repo@^0.0.1:
@@ -2601,6 +2601,11 @@ automerge-types@0.1.4:
   version "0.1.4"
   resolved "https://registry.npmjs.org/automerge-types/-/automerge-types-0.1.4.tgz"
   integrity sha512-VguW0d8Wt8jqbObh8bmMlGZMyUR2Av6eMtboekEzuHI3juru4oeq5+4brcceO/0Us8bkQdfZGErCR9vmBcX7Sw==
+
+automerge-types@0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/automerge-types/-/automerge-types-0.1.5.tgz#0341b949fe213278f8363d10d87b7fb5401e3f98"
+  integrity sha512-UD7SB/Bh1DtT7dcF4+WqNrEpfsirfk/hM2tvu15uZlqG/P5Re5VuwREGypDyQPm6upe/gmiip5wCz9p4ihJG2g==
 
 automerge-wasm-pack@^0.1.5:
   version "0.1.5"

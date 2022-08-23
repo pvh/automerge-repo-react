@@ -13,6 +13,7 @@ import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRe
 import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransactionToAutomerge'
 import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
 import { MarkType } from 'prosemirror-model'
+import * as Automerge from 'automerge-js'
 
 export type EditorProps = { handle: any, attribute: any, doc: any, changeDoc: any }
 
@@ -26,6 +27,12 @@ function toggleMarkCommand(mark: MarkType): Command {
   ) => {
     return toggleMark(mark)(state, dispatch)
   }
+}
+
+export interface RootDocument {
+  count: number
+  message: Automerge.Text
+  details: { name: string, fun: boolean }
 }
 
 export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {

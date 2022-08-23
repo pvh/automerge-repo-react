@@ -6,15 +6,16 @@ import {
   ReplaceStep,
 } from 'prosemirror-transform'
 import { ChangeSet } from './AutomergeTypes';
-// @ts-ignore
-import { DocHandle } from 'automerge-repo/src/DocHandle'
+import { DocHandle } from 'automerge-repo'
 import { prosemirrorToAutomerge } from './PositionMapper'
+import { RootDocument } from '../Editor';
+import * as Automerge from 'automerge-js';
 
 const emptyChangeSet: ChangeSet = { add: [], del: [] }
 
 function handleReplaceStep(
   step: ReplaceStep,
-  handle: DocHandle,
+  handle: DocHandle<RootDocument>,
   state: EditorState
 ): ChangeSet {
   let changeSet: ChangeSet = {
@@ -22,15 +23,20 @@ function handleReplaceStep(
     del: [],
   }
 
+
   const docString = handle.textToString('message')
   let { start, end } = prosemirrorToAutomerge(step, docString, state)
 
   if (end !== start) {
-    let deleted = handle.doc["message"].deleteAt(start, end - start)
+    const num = handle.doc!["count"]
+    const details = handle.doc!["details"]
+    console.log(num)
+    const text = handle.doc!["message"]
+    let deleted = text.deleteAt(start, end - start)
     changeSet.del.push({
       //actor: doc.getActorId(),
       pos: start,
-      val: deleted?.join('') || '',
+      val: /*deleted?.join('') || XXX: deleteAt has void type in this version of automerge */ '',
     })
   }
 
@@ -84,24 +90,23 @@ function handleReplaceStep(
 
 function handleAddMarkStep(
   step: AddMarkStep,
-  handle: DocHandle,
+  handle: DocHandle<RootDocument>,
   state: EditorState
 ) { //: ChangeSet {
-  const text = handle.doc["message"]
   const docString = handle.textToString('message')
   let { start, end } = prosemirrorToAutomerge(step, docString, state)
   let mark = step.mark
 
   if (mark.type.name === 'comment') {
     // again, isn't a function, needs implementation elsewhere
-    text.insertComment(
+    /*text.insertComment(
       start,
       end,
       mark.attrs.message,
       mark.attrs.author.id
-    )
+    )*/
   } else {
-    handle.textMark('/message', `(${start}..${end})`, mark.type.name, true)
+    handle.textMark('/message', `(${start}..${end})`, mark.type.name, "true")
   }
 
   // no way to encode mark changes in automerge attribution changesets (just yet)
@@ -110,16 +115,16 @@ function handleAddMarkStep(
 
 function handleRemoveMarkStep(
   step: RemoveMarkStep,
-  handle: DocHandle,
+  handle: DocHandle<RootDocument>,
   state: EditorState
 ) { //: ChangeSet {
-  const text = handle.doc["message"]
+  const text = handle.doc!["message"]
   const docString = handle.textToString('message')
   // TK not implemented because automerge doesn't support removing marks yet
   let { start, end } = prosemirrorToAutomerge(step, docString, state)
   let mark = step.mark
   if (mark.type.name === 'strong' || mark.type.name === 'em') {
-    text.mark(mark.type.name, `(${start}..${end})`, false)
+    handle.textMark('/message', mark.type.name, `(${start}..${end})`, "false")
   }
 
   // no way to encode mark changes in automerge attribution changesets (just yet)
@@ -128,11 +133,11 @@ function handleRemoveMarkStep(
 
 function handleReplaceAroundStep(
   step: ReplaceAroundStep,
-  handle: DocHandle,
+  handle: DocHandle<RootDocument>,
   state: EditorState
 ): ChangeSet {
 
-  const text = handle.doc["message"]
+  const text = handle.doc!["message"]
   const docString = handle.textToString('message')
   // This is just a guard to prevent us from handling a ReplaceAroundStep
   // that isn't simply replacing the container, because implementing that
@@ -170,9 +175,9 @@ function handleReplaceAroundStep(
   // Double-check that we're doing what we think we are, i.e., replacing a parent node
   if (text[gapStart - 1] !== '\uFFFC') {
     console.error(
-      `Unhandled scenario in ReplaceAroundStep, expected character at ${gapStart} (${text[
+      `Unhandled scenario in ReplaceAroundStep, expected character at ${gapStart} (${(text[
         gapStart - 1
-      ].charCodeAt(0)}) to be ${'\uFFFC'.charCodeAt(0)}`,
+      ]! as string).charCodeAt(0)}) to be ${'\uFFFC'.charCodeAt(0)}`,
       step
     )
     return emptyChangeSet
@@ -180,9 +185,9 @@ function handleReplaceAroundStep(
 
   if (text[gapEnd] !== '\uFFFC' && gapEnd !== text.length) {
     console.error(
-      `Unhandled scenario in ReplaceAroundStep, expected character at ${gapEnd} (${text[
-        gapEnd
-      ]?.charCodeAt(0)}) to be ${'\uFFFC'.charCodeAt(0)} or End of Document (${
+      `Unhandled scenario in ReplaceAroundStep, expected character at ${gapEnd} (${(text[
+        gapStart - 1
+      ]! as string)}) to be ${'\uFFFC'.charCodeAt(0)} or End of Document (${
         text.length
       })`,
       step
@@ -197,7 +202,7 @@ function handleReplaceAroundStep(
   let { type, attrs } = node
 
   // see previous usage of setBlock above, not a function
-  text.setBlock(gapStart - 1, type.name, attrs)
+  // ??? Blaine? text.setBlock(gapStart - 1, type.name, attrs)
 
   // setBlock doesn't map to a changeSet
   return emptyChangeSet
@@ -205,7 +210,7 @@ function handleReplaceAroundStep(
 
 export const prosemirrorTransactionToAutomerge = (
   transaction: Transaction,
-  handle: DocHandle,
+  handle: DocHandle<RootDocument>,
   changeDoc: Function, //: a change function. God help us.
   state: EditorState,
 ) => {
