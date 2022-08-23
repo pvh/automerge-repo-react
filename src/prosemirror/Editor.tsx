@@ -14,7 +14,7 @@ import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransa
 import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
 import { MarkType } from 'prosemirror-model'
 import * as Automerge from 'automerge-js'
-import { DocHandle } from 'automerge-repo'
+import { DocHandle, DocHandleEventArg } from 'automerge-repo'
 
 export type EditorProps = { handle: DocHandle<RootDocument>, attribute: 'message' /*lol*/, doc: Automerge.Doc<RootDocument>, changeDoc: any }
 
@@ -104,7 +104,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
 
     console.log('setting this up')
 
-    let funfun = (args: any) => {
+    let funfun = (args: DocHandleEventArg<RootDocument>) => {
       if (args.attribution) {
         console.log('my change!', args)
       } else {
@@ -116,7 +116,7 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
       const transaction = convertAutomergeTransactionToProsemirrorTransaction(
         doc,
         state,
-        args.attribution
+        args.attribution as any
       )
 
       console.log('transaction!', transaction)
