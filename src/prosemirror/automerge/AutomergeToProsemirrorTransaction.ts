@@ -76,7 +76,6 @@ export const convertAutomergeTransactionToProsemirrorTransaction: (
   state: EditorState,
   edits: AutomergeTransaction
 ) => {
-  console.log('wahey, here are edits', edits)
   if (!edits) return
 
   let tr = state.tr

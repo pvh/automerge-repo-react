@@ -101,25 +101,12 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
 
   useEffect(() => {
     if (!state) return
-
-    console.log('setting this up')
-
     let funfun = (args: DocHandleEventArg<RootDocument>) => {
-      if (args.attribution) {
-        console.log('my change!', args)
-      } else {
-        console.log('no attribution :(')
-      }
-
-      if (!args.attribution) return
-
       const transaction = convertAutomergeTransactionToProsemirrorTransaction(
         doc,
         state,
         args.attribution as any
       )
-
-      console.log('transaction!', transaction)
 
       if (transaction) {
         let newState = state.apply(transaction)
@@ -130,7 +117,6 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
     handle.on('change', funfun) 
 
     return (() => {
-      console.log('unsubscribing')
       handle.off('change', funfun)
     })
   }, [doc, handle, state])

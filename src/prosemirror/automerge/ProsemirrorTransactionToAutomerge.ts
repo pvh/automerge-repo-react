@@ -29,9 +29,6 @@ function handleReplaceStep(
   let { start, end } = prosemirrorToAutomerge(step, docString, state)
 
   if (end !== start) {
-    const num = doc["count"]
-    const details = doc["details"]
-    console.log(num)
     const text = doc["message"]
     // XXX: orion fixing this
     let deleted = text.deleteAt(start, end - start)
@@ -44,7 +41,6 @@ function handleReplaceStep(
 
   if (step.slice) {
     let insOffset = start
-    console.log(step.slice)
     let sliceSize = step.slice.content.size
     sliceSize -= step.slice.openStart + step.slice.openEnd
     step.slice.content.forEach((node, idx) => {
@@ -54,19 +50,16 @@ function handleReplaceStep(
           start,
           end: start + node.text.length,
         })
-        // i removed a handle.replace(doc) call inside this method
+        // XXX blaine: i removed a handle.replace(doc) call inside this method. seems fine?
         textInsertAt(doc, '/message', insOffset, node.text)
         insOffset += node.text.length
       } else if (['paragraph', 'heading'].indexOf(node.type.name) !== -1) {
         if (sliceSize >= 2) {
           // this isn't a function, need to implement it somewhere
-          console.log({doc, insOffset})
           //insertBlock(doc, handle.getObjId('/', 'message'), insOffset++, node.type.name)
           textInsertBlock(doc, '/message', insOffset++, node.type.name)
-          console.log('inserted block: ', textGetBlock(doc, '/message', insOffset - 1))
 
           let nodeText = node.textBetween(0, node.content.size)
-          console.log(`node text: --->${nodeText}<---`)
           changeSet.add.push({
             //actor: editableDraft.doc.getActorId(),
             start,
@@ -121,7 +114,6 @@ function handleRemoveMarkStep(
   doc: Doc<RootDocument>,
   state: EditorState
 ) { //: ChangeSet {
-  const text = doc["message"]
   const docString = textToString(doc, 'message')
   // TK not implemented because automerge doesn't support removing marks yet
   let { start, end } = prosemirrorToAutomerge(step, docString, state)

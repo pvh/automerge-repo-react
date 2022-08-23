@@ -47,14 +47,11 @@ export function textGetBlocks(doc: Automerge.Doc<unknown>, objId: string) {
   const string = textToString(doc, objId)
   const blocks: BlockData[] = []
 
-  console.log(string.replace('\uFFFC', 'X'))
-
   const initial = string.indexOf('\uFFFC')
 
   // If there isn't a block at the start of the document, create a virtual one
   // because we need it for prosemirror
   if (initial !== 0) {
-    console.log('adding initial virtual paragraph')
     const end = (initial === -1) ? string.length : initial
 
     blocks.push({
@@ -66,7 +63,6 @@ export function textGetBlocks(doc: Automerge.Doc<unknown>, objId: string) {
   }
 
   if (initial > -1) {
-    console.log('trying to create a new paragraph')
     let i = initial
     while (i !== -1) {
       const next = string.indexOf('\uFFFC', i + 1)
@@ -88,12 +84,9 @@ export function textToString(doc: Automerge.Doc<unknown>, objId: string) {
   if (!doc) { throw new Error("Missing doc")}
   const text = (doc as any)[objId]
   if (!text) {
-    console.log('what no text', objId, text)
     return ""
   }
-  console.log('in text to string', objId, text)
   for (let i = 0; i < text.length; i++) {
-    console.log(typeof text[i])
     if (typeof text[i] === 'string') {
       string.push(text[i])
     } else {

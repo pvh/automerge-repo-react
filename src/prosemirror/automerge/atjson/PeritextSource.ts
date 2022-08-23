@@ -66,8 +66,6 @@ export default class AutomergeSource extends Document {
     const objId = getObjId(doc, parentObjId, attribute)
     const marks = textGetMarks(doc, objId)
 
-    console.log({text, marks})
-
     let annotations: any[] = []
 
     marks.forEach((m: any) => {
@@ -104,14 +102,12 @@ export default class AutomergeSource extends Document {
     })
 
     // next convert blocks to annotations
-    console.log(textGetBlocks(doc, 'message'))
     for (let b of textGetBlocks(doc, 'message')) {
       if (['paragraph', 'heading'].indexOf(b.type) === -1) b.type = 'paragraph'
       b.type = `-automerge-${b.type}`
       annotations.push(b)
     }
 
-    console.log(marks)
     // Insert a fake paragraph until we have native blocks working.
     /*
     marks.push({

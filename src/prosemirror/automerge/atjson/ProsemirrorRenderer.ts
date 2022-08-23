@@ -6,7 +6,6 @@ import { schema } from 'prosemirror-schema-basic'
 export default class ProsemirrorRenderer extends Renderer {
   *root(): any {
     let children = yield
-    console.log('doc children', children)
     return schema.node('doc', undefined, children)
   }
 
@@ -39,8 +38,6 @@ export default class ProsemirrorRenderer extends Renderer {
       })
     } else {
       if (annotationChildren.length === 0) annotationChildren = []
-
-      console.log(annotation, annotationChildren)
 
       return schema.node(
         annotation.type,

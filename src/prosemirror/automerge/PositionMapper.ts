@@ -90,7 +90,7 @@ export const prosemirrorToAutomergeNumber = (
    * are ignorable.
    *
    * UNBREAK COMMENT HERE
-   */
+   
 
   let am2pm = automergeToProsemirrorNumber(amPosition, text)
 
