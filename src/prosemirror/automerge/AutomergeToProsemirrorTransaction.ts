@@ -5,17 +5,17 @@ import { automergeToProsemirror, BLOCK_MARKER } from './PositionMapper'
 
 import { EditorState, Transaction } from 'prosemirror-state'
 import { AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion } from './AutomergeTypes'
-import DocHandle from 'automerge-repo/dist/DocHandle'
 import * as Automerge from 'automerge-js'
 import { RootDocument } from '../Editor'
 import { textToString } from '../RichTextUtils'
+import { Doc } from 'automerge-js'
 
 const convertAddToStep: (
-  handle: DocHandle<RootDocument>,
-) => (added: ChangeSetAddition) => ReplaceStep = (handle: DocHandle<RootDocument>) => {
+  doc: Doc<RootDocument>,
+) => (added: ChangeSetAddition) => ReplaceStep = (doc: Doc<RootDocument>) => {
    return (added: ChangeSetAddition) => {
-    console.log('string', textToString(handle.doc!, 'message'))
-    const docString = textToString(handle.doc!, 'message')
+    console.log('string', textToString(doc, 'message'))
+    const docString = textToString(doc, 'message')
     let text = docString.substring(added.start, added.end)
     let { from } = automergeToProsemirror(added, docString)
     let nodes = []
@@ -58,13 +58,13 @@ const convertAddToStep: (
 }
 
 const convertDeleteToStep: (
-  handle: DocHandle<RootDocument>
-) => (deleted: ChangeSetDeletion) => ReplaceStep = (handle: DocHandle<RootDocument>) => {
+  doc: Doc<RootDocument>
+) => (deleted: ChangeSetDeletion) => ReplaceStep = (doc: Doc<RootDocument>) => {
   // FIXME this should work, but the attribution steps we're getting
   // back from automerge are incorrect, so it breaks.
   return (deleted) => {
     let text = deleted.val
-    const docString = textToString(handle.doc!, 'message')
+    const docString = textToString(doc, 'message')
     let { from, to } = automergeToProsemirror(
       { start: deleted.pos, end: deleted.pos + text.length },
       docString
@@ -77,12 +77,10 @@ const convertDeleteToStep: (
 
 export const convertAutomergeTransactionToProsemirrorTransaction: (
   doc: Automerge.Doc<RootDocument>,
-  handle: DocHandle<RootDocument>,
   state: EditorState,
   edits: AutomergeTransaction
 ) => Transaction | undefined = (
-  doc: Automerge.Doc<RootDocument>,
-  handle: DocHandle<RootDocument>,
+  doc: Doc<RootDocument>,
   state: EditorState,
   edits: AutomergeTransaction
 ) => {
@@ -94,8 +92,8 @@ export const convertAutomergeTransactionToProsemirrorTransaction: (
   for (const changeset of edits) {
     //{add: {start: 3, end: 4}, del: []}
 
-    changeset.add.map(convertAddToStep(handle)).map((step) => tr.step(step))
-    changeset.del.map(convertDeleteToStep(handle)).map((step) => tr.step(step))
+    changeset.add.map(convertAddToStep(doc)).map((step) => tr.step(step))
+    changeset.del.map(convertDeleteToStep(doc)).map((step) => tr.step(step))
   }
 
   // This is pretty inefficient. This whole changes thing kind of needs a

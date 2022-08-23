@@ -115,7 +115,6 @@ export function Editor({handle, attribute, doc, changeDoc}: EditorProps) {
 
       const transaction = convertAutomergeTransactionToProsemirrorTransaction(
         doc,
-        handle,
         state,
         args.attribution
       )
