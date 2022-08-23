@@ -24,20 +24,11 @@ export const automergeToProsemirrorNumber = (
   // we have nested blocks.
   //
   let idx = text.indexOf(BLOCK_MARKER)
-  // remove me
-  if (idx === undefined) {
-    console.log('INDEXOF SHOULD NOT RETURN UNDEFINED; BUG IN AUTOMERGE-JS')
-    idx = -1
-  }
 
   let automergeBlockPositions = 0
   let prosemirrorBlockPositions = 1
   while (idx < position && idx !== -1) {
     idx = text.indexOf(BLOCK_MARKER, idx + 1)
-    if (idx === undefined) {
-      console.log('INDEXOF SHOULD NOT RETURN UNDEFINED; BUG IN AUTOMERGE-JS')
-      idx = -1
-    }
     automergeBlockPositions++
     prosemirrorBlockPositions += 2
   }

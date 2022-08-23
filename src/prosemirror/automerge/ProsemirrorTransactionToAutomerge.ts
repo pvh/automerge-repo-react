@@ -8,8 +8,7 @@ import {
 import { ChangeSet } from './AutomergeTypes';
 import { prosemirrorToAutomerge } from './PositionMapper'
 import { RootDocument } from '../Editor';
-import * as Automerge from 'automerge-js';
-import { textGetBlock, textInsertAt, textInsertBlock, textMark, textToString } from '../RichTextUtils';
+import { textInsertAt, textInsertBlock, textMark, textToString } from '../RichTextUtils';
 import { Doc } from 'automerge-js';
 
 const emptyChangeSet: ChangeSet = { add: [], del: [] }
