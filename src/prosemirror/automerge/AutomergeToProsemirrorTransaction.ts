@@ -10,69 +10,61 @@ import { RootDocument } from '../Editor'
 import { textToString } from '../RichTextUtils'
 import { Doc } from 'automerge-js'
 
-const convertAddToStep: (
-  doc: Doc<RootDocument>,
-) => (added: ChangeSetAddition) => ReplaceStep = (doc: Doc<RootDocument>) => {
-   return (added: ChangeSetAddition) => {
-    console.log('string', textToString(doc, 'message'))
-    const docString = textToString(doc, 'message')
-    let text = docString.substring(added.start, added.end)
-    let { from } = automergeToProsemirror(added, docString)
-    let nodes = []
-    let blocks = text.split(BLOCK_MARKER)
+const convertAddToStep = (doc: Doc<RootDocument>, added: ChangeSetAddition): ReplaceStep => {
+  const docString = textToString(doc, 'message')
+  let text = docString.substring(added.start, added.end)
+  let { from } = automergeToProsemirror(added, docString)
+  let nodes = []
+  let blocks = text.split(BLOCK_MARKER)
 
-    let depth = blocks.length > 1 ? 1 : 0
+  let depth = blocks.length > 1 ? 1 : 0
 
-    // blocks: [ "text the first", "second text", "text" ]
-    //          ^ no pgh break    ^ pgh break    ^ pgh break 2
+  // blocks: [ "text the first", "second text", "text" ]
+  //          ^ no pgh break    ^ pgh break    ^ pgh break 2
 
-    // the first text node here doesn't get a paragraph break
-    let block = blocks.shift()
-    if (!block) {
-      let node = schema.node('paragraph', {}, [])
-      nodes.push(node)
+  // the first text node here doesn't get a paragraph break
+  let block = blocks.shift()
+  if (!block) {
+    let node = schema.node('paragraph', {}, [])
+    nodes.push(node)
+  } else {
+    if (blocks.length === 0) {
+      nodes.push(schema.text(block))
     } else {
-      if (blocks.length === 0) {
-        nodes.push(schema.text(block))
-      } else {
-        nodes.push(schema.node('paragraph', {}, schema.text(block)))
-      }
+      nodes.push(schema.node('paragraph', {}, schema.text(block)))
     }
-
-    blocks.forEach((block: string /* this might be wrong. i'm so sorry */) => {
-      // FIXME this might be wrong for e.g. a paste with multiple empty paragraphs
-      if (block.length === 0) {
-        nodes.push(schema.node('paragraph', {}, []))
-        return
-      } else {
-        let node = schema.node('paragraph', {}, schema.text(block))
-        nodes.push(node)
-      }
-    })
-
-    let fragment = Fragment.fromArray(nodes)
-    let slice = new Slice(fragment, depth, depth)
-
-    return new ReplaceStep(from, from, slice)
   }
+
+  blocks.forEach((block) => {
+    // FIXME this might be wrong for e.g. a paste with multiple empty paragraphs
+    if (block.length === 0) {
+      nodes.push(schema.node('paragraph', {}, []))
+      return
+    } else {
+      let node = schema.node('paragraph', {}, schema.text(block))
+      nodes.push(node)
+    }
+  })
+
+  let fragment = Fragment.fromArray(nodes)
+  let slice = new Slice(fragment, depth, depth)
+
+  return new ReplaceStep(from, from, slice)
 }
 
-const convertDeleteToStep: (
-  doc: Doc<RootDocument>
-) => (deleted: ChangeSetDeletion) => ReplaceStep = (doc: Doc<RootDocument>) => {
+
+const convertDeleteToStep = (doc: Doc<RootDocument>, deleted: ChangeSetDeletion): ReplaceStep => {
   // FIXME this should work, but the attribution steps we're getting
   // back from automerge are incorrect, so it breaks.
-  return (deleted) => {
-    let text = deleted.val
-    const docString = textToString(doc, 'message')
-    let { from, to } = automergeToProsemirror(
-      { start: deleted.pos, end: deleted.pos + text.length },
-      docString
-    )
-    let fragment = Fragment.fromArray([])
-    let slice = new Slice(fragment, 0, 0)
-    return new ReplaceStep(from, to, slice)
-  }
+  let text = deleted.val
+  const docString = textToString(doc, 'message')
+  let { from, to } = automergeToProsemirror(
+    { start: deleted.pos, end: deleted.pos + text.length },
+    docString
+  )
+  let fragment = Fragment.fromArray([])
+  let slice = new Slice(fragment, 0, 0)
+  return new ReplaceStep(from, to, slice)
 }
 
 export const convertAutomergeTransactionToProsemirrorTransaction: (
@@ -91,9 +83,8 @@ export const convertAutomergeTransactionToProsemirrorTransaction: (
 
   for (const changeset of edits) {
     //{add: {start: 3, end: 4}, del: []}
-
-    changeset.add.map(convertAddToStep(doc)).map((step) => tr.step(step))
-    changeset.del.map(convertDeleteToStep(doc)).map((step) => tr.step(step))
+    changeset.add.map((step) => convertAddToStep(doc, step)).map((step) => tr.step(step))
+    changeset.del.map((step) => convertDeleteToStep(doc, step)).map((step) => tr.step(step))
   }
 
   // This is pretty inefficient. This whole changes thing kind of needs a
