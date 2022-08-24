@@ -1,4 +1,5 @@
 import * as Automerge from "automerge-js"
+import { AutomergeTransaction, ChangeSet } from "./automerge/AutomergeTypes"
 
 export interface BlockData {
   start: number
@@ -7,20 +8,20 @@ export interface BlockData {
   attributes?: unknown
 }
 
-export function attributedChanges(
-  oldDoc: Automerge.Doc<unknown>, 
-  newDoc: Automerge.Doc<unknown>, 
-  objId: string): any | null {
-  const oldHeads = (Automerge as any).getBackend(oldDoc).getHeads()
-  const newHeads = (Automerge as any).getBackend(newDoc).getHeads()
+export function attributedTextChanges(
+  doc: Automerge.Doc<unknown>, 
+  prevHeads: Automerge.Doc<unknown>, 
+  objId: string): AutomergeTransaction {
+  
+  const newHeads = (Automerge as any).getBackend(doc).getHeads()
+  const textObj = (Automerge as any).getBackend(doc).get('_root', objId)
 
-  let attribution = null
-  const textObj = (Automerge as any).getBackend(newDoc).get('_root', objId)
-
-  if (textObj && oldHeads && newHeads && oldHeads[0] !== newHeads[0]) {
-    attribution = (Automerge as any).getBackend(newDoc).attribute(textObj, oldHeads, [newHeads])
+  if (!textObj) {
+    console.warn(`attributedChanges: ${objId} was not found in the document`)
+    return [] as AutomergeTransaction
   }
-  return attribution
+  
+  return (Automerge as any).getBackend(doc).attribute(textObj, prevHeads, [newHeads])
 }
 
 export function getObjId(doc: Automerge.Doc<unknown>, objId: string, attr: string) {

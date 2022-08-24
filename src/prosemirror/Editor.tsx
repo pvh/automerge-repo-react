@@ -16,7 +16,7 @@ import { MarkType } from 'prosemirror-model'
 import * as Automerge from 'automerge-js'
 import { DocHandle, DocHandleEventArg } from 'automerge-repo'
 import { TextKeyOf } from './automerge/AutomergeTypes'
-import { attributedChanges } from './RichTextUtils'
+import { attributedTextChanges } from './RichTextUtils'
 
 export type EditorProps<T> = { handle: DocHandle<T>, attribute: TextKeyOf<T>, doc: Automerge.Doc<T>, changeDoc: any }
 
@@ -35,6 +35,7 @@ function toggleMarkCommand(mark: MarkType): Command {
 export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
   const [state, setState] = React.useState<EditorState | null>(null)
   const [initialized, setInitialized] = React.useState<boolean>(false)
+  const [currentHeads, setCurrentHeads] = React.useState<Automerge.Heads>()
 
   useEffect(() => {
     if (!doc) return
@@ -62,6 +63,8 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
 
     let newState = EditorState.create(editorConfig)
     setState(newState)
+
+    setCurrentHeads(Automerge.getBackend(doc).getHeads())
 
     setInitialized(true)
 
@@ -99,11 +102,13 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
   */
 
   useEffect(() => {
-    if (!state) return
+    if (!state || !currentHeads) return
     let funfun = (args: DocHandleEventArg<T>) => {
-      const attribution = attributedChanges(doc, args.doc, attribute)
+      const attribution = attributedTextChanges(args.doc, currentHeads, attribute)
+      setCurrentHeads(Automerge.getBackend(args.doc).getHeads())
+
       const transaction = convertAutomergeTransactionToProsemirrorTransaction(
-        doc,
+        args.doc,
         attribute,
         state,
         attribution
@@ -120,7 +125,7 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
     return (() => {
       handle.off('change', funfun)
     })
-  }, [doc, attribute, handle, state])
+  }, [doc, attribute, handle, currentHeads, state])
 
   const viewRef = useRef(null)
 
