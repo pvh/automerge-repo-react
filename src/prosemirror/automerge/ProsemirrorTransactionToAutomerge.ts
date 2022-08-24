@@ -198,8 +198,6 @@ function handleReplaceAroundStep<T>(
   let node = step.slice.content.maybeChild(0)
   if (!node) return emptyChangeSet
 
-  let { type, attrs } = node
-
   // see previous usage of setBlock above, not a function
   // ??? Blaine? text.setBlock(gapStart - 1, type.name, attrs)
 
@@ -213,54 +211,18 @@ export const prosemirrorTransactionToAutomerge = <T>(
   attribute: TextKeyOf<T>,
   state: EditorState,
 ) => {
-  let changeSets: ChangeSet[] = []
-
   changeDoc((doc: Doc<T>) => {
     for (let step of transaction.steps) {
       if (step instanceof ReplaceStep) {
-        let replaceChanges = handleReplaceStep(step, doc, attribute, state)
-        changeSets = changeSets.concat(replaceChanges)
+        handleReplaceStep(step, doc, attribute, state)
       } else if (step instanceof AddMarkStep) {
-        let addMarkChanges = handleAddMarkStep(step, doc, attribute, state)
-        changeSets = changeSets.concat(addMarkChanges)
+        handleAddMarkStep(step, doc, attribute, state)
       } else if (step instanceof RemoveMarkStep) {
-        let removeMarkChanges = handleRemoveMarkStep(step, doc, attribute, state)
-        changeSets = changeSets.concat(removeMarkChanges)
+        handleRemoveMarkStep(step, doc, attribute, state)
       } else if (step instanceof ReplaceAroundStep) {
-        let replaceAroundStepChanges = handleReplaceAroundStep(
-          step,
-          doc,
-          attribute, 
-          state
-        )
-
-        changeSets = changeSets.concat(replaceAroundStepChanges)
+        handleReplaceAroundStep(step, doc, attribute, state)
       }
     }
-
-    const docString = textToString(doc, attribute)
-    const cursorPosition = prosemirrorToAutomerge(
-      {
-        from: transaction.selection.ranges[0].$from.pos,
-        to: transaction.selection.ranges[0].$to.pos,
-      },
-      docString,
-      state
-    )
-
-    // Combine ChangeSets from all steps.
-    /*
-    let changeSet = [
-      changeSets.reduce((prev, curr) => {
-        return {
-          add: prev.add.concat(curr.add),
-          del: prev.del.concat(curr.del),
-        }
-      }, emptyChangeSet),
-    ]
-
-    transaction.setMeta(automergeChangesKey, { changeSet })
-    */
   })
 
 }

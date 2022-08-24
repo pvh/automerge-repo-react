@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 
 import ProseMirror from './ProseMirror'
-import { Command, EditorState, Transaction } from 'prosemirror-state'
+import { Command, EditorState, TextSelection, Transaction } from 'prosemirror-state'
 import { keymap } from 'prosemirror-keymap'
 import { baseKeymap, toggleMark } from 'prosemirror-commands'
 import { history, redo, undo } from 'prosemirror-history'
@@ -131,18 +131,22 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
 
   // This takes transactions from prosemirror and updates the automerge doc to
   // match.
-  let dispatchHandler = (transaction: Transaction) => {
+  let dispatchHandler = (txn: Transaction) => {
     if (!state) return
 
     prosemirrorTransactionToAutomerge(
-      transaction,
+      txn,
       changeDoc,
       attribute,
       state
     )
 
-    let newState = state.apply(transaction)
-    setState(newState)
+    // We remove the "steps" from this transaction
+    // since Prosemirror has some other internal bookkeeping that the
+    // Automerge document doesn't handle.
+    ;(txn as any).steps = []
+    console.log(txn.steps)
+    setState(state.apply(txn))    
   }
 
   if (!state) return <div>loading</div>
