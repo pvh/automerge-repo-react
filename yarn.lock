@@ -2581,9 +2581,9 @@ atob@^2.1.2:
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
 automerge-js@^0.1.10:
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/automerge-js/-/automerge-js-0.1.10.tgz#b54012503cc2a047aa883f541dcf4c5fd24aa9e0"
-  integrity sha512-o9B2s/VTubDTqO3DDDDjnqRYS0ZH68HceisViC+4icOeZIF7t1emdh5jBlSJj8BsVTCHE/iI1NEhoKsLShG/mQ==
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/automerge-js/-/automerge-js-0.1.11.tgz#c566a54ef9b34a67897242724204cef08b5b8042"
+  integrity sha512-j+NE28NV3uwiVL2krPOfY7+xSwdJBjoc4S/ogsYFC/hpaizoYZ92pdFVd4X4cGMukWCVAJcT1mZ+MGtdUCV4pw==
   dependencies:
     automerge-types "0.1.5"
     uuid "^8.3"

@@ -136,9 +136,8 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
 
     prosemirrorTransactionToAutomerge(
       transaction,
-      doc,
-      attribute,
       changeDoc,
+      attribute,
       state
     )
 
