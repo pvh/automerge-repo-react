@@ -209,13 +209,13 @@ function handleReplaceAroundStep<T>(
 
 export const prosemirrorTransactionToAutomerge = <T>(
   transaction: Transaction,
-  changeDoc: Function, //: a change function. God help us.
+  changeDoc: (cb: (doc: Doc<T>) => void) => void,
   attribute: TextKeyOf<T>,
   state: EditorState,
 ) => {
   let changeSets: ChangeSet[] = []
 
-  changeDoc((doc: any) => {
+  changeDoc((doc: Doc<T>) => {
     for (let step of transaction.steps) {
       if (step instanceof ReplaceStep) {
         let replaceChanges = handleReplaceStep(step, doc, attribute, state)
