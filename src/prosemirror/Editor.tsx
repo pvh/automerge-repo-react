@@ -16,6 +16,7 @@ import { MarkType } from 'prosemirror-model'
 import * as Automerge from 'automerge-js'
 import { DocHandle, DocHandleEventArg } from 'automerge-repo'
 import { TextKeyOf } from './automerge/AutomergeTypes'
+import { attributedChanges } from './RichTextUtils'
 
 export type EditorProps<T> = { handle: DocHandle<T>, attribute: TextKeyOf<T>, doc: Automerge.Doc<T>, changeDoc: any }
 
@@ -29,12 +30,6 @@ function toggleMarkCommand(mark: MarkType): Command {
   ) => {
     return toggleMark(mark)(state, dispatch)
   }
-}
-
-export interface RootDocument {
-  count: number
-  message: Automerge.Text
-  details: { name: string, fun: boolean }
 }
 
 export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
@@ -106,11 +101,12 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
   useEffect(() => {
     if (!state) return
     let funfun = (args: DocHandleEventArg<T>) => {
+      const attribution = attributedChanges(doc, args.doc, attribute)
       const transaction = convertAutomergeTransactionToProsemirrorTransaction(
         doc,
         attribute,
         state,
-        args.attribution as any
+        attribution
       )
 
       if (transaction) {

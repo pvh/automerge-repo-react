@@ -7,6 +7,22 @@ export interface BlockData {
   attributes?: unknown
 }
 
+export function attributedChanges(
+  oldDoc: Automerge.Doc<unknown>, 
+  newDoc: Automerge.Doc<unknown>, 
+  objId: string): any | null {
+  const oldHeads = (Automerge as any).getBackend(oldDoc).getHeads()
+  const newHeads = (Automerge as any).getBackend(newDoc).getHeads()
+
+  let attribution = null
+  const textObj = (Automerge as any).getBackend(newDoc).get('_root', objId)
+
+  if (textObj && oldHeads && newHeads && oldHeads[0] !== newHeads[0]) {
+    attribution = (Automerge as any).getBackend(newDoc).attribute(textObj, oldHeads, [newHeads])
+  }
+  return attribution
+}
+
 export function getObjId(doc: Automerge.Doc<unknown>, objId: string, attr: string) {
   const data = (Automerge as any).getBackend(doc).getAll(objId, attr)
   if (data && data.length === 1) { return data[0][1] }
