@@ -26,7 +26,7 @@ async function getRepo() {
     storage: new LocalForageStorageAdapter(),
     network: [
       new BroadcastChannelNetworkAdapter(),
-      // new BrowserWebSocketClientAdapter('ws://localhost:3030')
+      new BrowserWebSocketClientAdapter('ws://localhost:3030')
     ],
   });
 }
