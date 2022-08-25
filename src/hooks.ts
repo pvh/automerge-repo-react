@@ -1,48 +1,56 @@
-import { DocHandle, Repo } from 'automerge-repo'
-import { useEffect, useState, createContext, useContext } from 'react'
+import { Doc } from "automerge-js";
+import { DocHandle, Repo } from "automerge-repo";
+import { useEffect, useState, createContext, useContext } from "react";
 
-export const RepoContext = createContext(null)
+export const RepoContext = createContext(null);
 
 export function useRepo(): Repo {
-  const repo = useContext(RepoContext)
+  const repo = useContext(RepoContext);
 
   if (!repo) {
-    throw new Error('Repo not available on RepoContext.')
+    throw new Error("Repo not available on RepoContext.");
   }
 
-  return repo
+  return repo;
 }
 
-export function useHandle<T>(documentId: string): [DocHandle<T> | undefined, (d: DocHandle<T>) => void] {
-  const repo = useRepo()
+export function useHandle<T>(
+  documentId: string
+): [DocHandle<T> | undefined, (d: DocHandle<T>) => void] {
+  const repo = useRepo();
 
-  const [handle, setHandle] = useState<DocHandle<T>>()
+  const [handle, setHandle] = useState<DocHandle<T>>();
 
   useEffect(() => {
     (async () => {
-      const handle: DocHandle<T> = await repo.find(documentId)
-      setHandle(handle)
-    })()
-  })
+      const handle: DocHandle<T> = await repo.find(documentId);
+      setHandle(handle);
+    })();
+  });
 
-  return [handle, setHandle]
+  return [handle, setHandle];
 }
 
-export function useDocument<T>(documentId: string): [doc: T | undefined, changeFn: (cf: (d: T) => void) => void] {
-  const [doc, setDoc] = useState<T>()
-  const [handle, ] = useHandle<T>(documentId)
+export function useDocument<T>(
+  documentId: string
+): [doc: Doc<T> | undefined, changeFn: (cf: (d: T) => void) => void] {
+  const [doc, setDoc] = useState<Doc<T>>(); // should be Doc<T> but that's an error?
+  const [handle] = useHandle<T>(documentId);
 
   useEffect(() => {
-    if (!handle) { return }
-    handle.value().then((v) => setDoc(v))
-    handle.on('change', (h) => { setDoc(h.doc) } )
-  })
+    if (!handle) {
+      return;
+    }
+    handle.value().then((v) => setDoc(v as Doc<T>));
+    handle.on("change", (h) => setDoc(h.doc as Doc<T>));
+  });
 
   const changeDoc = (changeFunction: (d: T) => void) => {
-    if (!handle) { return }
-    handle.change(changeFunction)
-  }
+    if (!handle) {
+      return;
+    }
+    handle.change(changeFunction);
+  };
 
-  return [doc, changeDoc]
+  return [doc, changeDoc];
 }
-

@@ -1,22 +1,23 @@
 import React, { useEffect, useRef } from 'react'
 
-import ProseMirror from './ProseMirror'
-import { Command, EditorState, TextSelection, Transaction } from 'prosemirror-state'
+import { Command, EditorState, Transaction } from 'prosemirror-state'
 import { keymap } from 'prosemirror-keymap'
 import { baseKeymap, toggleMark } from 'prosemirror-commands'
 import { history, redo, undo } from 'prosemirror-history'
 import { schema } from 'prosemirror-schema-basic'
-
-import { default as PeritextSource } from './automerge/atjson/PeritextSource'
-import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRenderer'
-
-import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransactionToAutomerge'
-import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
 import { MarkType } from 'prosemirror-model'
+
 import * as Automerge from 'automerge-js'
 import { DocHandle, DocHandleEventArg } from 'automerge-repo'
 import { TextKeyOf } from './automerge/AutomergeTypes'
 import { attributedTextChanges } from './RichTextUtils'
+
+import ProseMirror from './ProseMirror'
+import { default as PeritextSource } from './automerge/atjson/PeritextSource'
+import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRenderer'
+import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransactionToAutomerge'
+import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
+import { Doc } from 'automerge-js'
 
 export type EditorProps<T> = { handle: DocHandle<T>, attribute: TextKeyOf<T>, doc: Automerge.Doc<T>, changeDoc: any }
 
@@ -74,41 +75,14 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
     // integration, @pvh?
   }, [attribute, handle, doc, initialized])
 
-  /*
-  useEffect(() => { 
-    if (!state) return
-
-    changeDoc((edits: any) => {
-      let transaction = convertAutomergeTransactionToProsemirrorTransaction(
-        doc,
-        state,
-        edits
-      )
-
-      if (transaction) {
-        let newState = state.apply(transaction)
-        setState(newState)
-      }
-
-      // remote cursor sync would go here if relevant
-    })
-    
-    
-    // in upwelling we found that the automerge object wasn't stable enough to
-    // use reliably with useEffect, and ended up using a stable integer id for
-    // the document instead. Not sure what to do with the automerge-repo
-    // integration, @pvh?
-  }, [doc, state, changeDoc])
-  */
-
   useEffect(() => {
     if (!state || !currentHeads) return
     let funfun = (args: DocHandleEventArg<T>) => {
       const attribution = attributedTextChanges(args.doc, currentHeads, attribute)
-      setCurrentHeads(Automerge.getBackend(args.doc).getHeads())
+      setCurrentHeads(Automerge.getBackend(args.doc as Doc<T>).getHeads())
 
       const transaction = convertAutomergeTransactionToProsemirrorTransaction(
-        args.doc,
+        args.doc  as Doc<T>,
         attribute,
         state,
         attribution
@@ -121,7 +95,6 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
     }
 
     handle.on('change', funfun) 
-
     return (() => {
       handle.off('change', funfun)
     })
@@ -141,11 +114,8 @@ export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
       state
     )
 
-    // We remove the "steps" from this transaction
-    // since Prosemirror has some other internal bookkeeping that the
-    // Automerge document doesn't handle.
-    ;(txn as any).steps = []
-    console.log(txn.steps)
+    // A Prosemirror transaction can include information Automerge doesn't track.
+    // We've removed the 'steps' handled above, but we want to apply the remainder.
     setState(state.apply(txn))    
   }
 
