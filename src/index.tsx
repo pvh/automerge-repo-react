@@ -12,21 +12,18 @@ import {
   BrowserRepo,
   // @ts-expect-error
   LocalForageStorageAdapter,
-  // @ts-expect-error
-  BroadcastChannelNetworkAdapter,
+  // BroadcastChannelNetworkAdapter,
   // @ts-expect-error
   BrowserWebSocketClientAdapter,
   Repo,
 } from "automerge-repo"
 
-import * as Automerge from "automerge-js";
-
 async function getRepo() {
   return await BrowserRepo({
     storage: new LocalForageStorageAdapter(),
     network: [
-      new BroadcastChannelNetworkAdapter(),
-      new BrowserWebSocketClientAdapter('ws://localhost:3030')
+      // new BroadcastChannelNetworkAdapter(),
+      new BrowserWebSocketClientAdapter('ws://skillful-sandy-practice.glitch.me/')
     ],
   });
 }
@@ -55,7 +52,7 @@ const initFunction = (d: RootDocument) => {
 getRepo().then((repo) => {
   getRootDocument(repo, initFunction).then((rootDoc) => {
     const rootElem = document.getElementById("root")
-    if (!rootElem) { throw new Error("The 'root' element wasn't found in the host HTML doc.")}
+    if (!rootElem) { throw new Error("The 'root' element wasn't found in the host HTML doc.") }
     const root = ReactDOM.createRoot(rootElem);
     root.render(
       <StrictMode>
