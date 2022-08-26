@@ -41,6 +41,7 @@ async function getRootDocument(repo: Repo, initFunction: any) {
     await localforage.setItem("root", rootHandle.documentId);
   } else {
     rootHandle = await repo.find(docId);
+    window.location.hash = docId;
   }
   return rootHandle;
 }
