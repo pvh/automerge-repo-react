@@ -23,9 +23,10 @@ function TodoItem({ documentId }: TodoItemArgs) {
   }
   if (!doc || !handle) { return <></>}
   const { done } = doc
-  return <li style={done ? {'textDecoration': 'line-through'} : {}} onClick={toggleDone}>
+  return <div style={done ? {'display': 'flex', 'textDecoration': 'line-through'} : {'display': 'flex'}} >
+      <input type="checkbox" defaultChecked={done} onChange={toggleDone}></input>
       <Editor handle={handle} attribute={'text'} doc={doc} changeDoc={changeDoc}></Editor>
-    </li>
+    </div>
 }
 
 export interface TodoListArgs {
