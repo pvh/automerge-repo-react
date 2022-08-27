@@ -7,7 +7,8 @@ import {
   BrowserRepo,
   // @ts-expect-error
   LocalForageStorageAdapter,
-  // BroadcastChannelNetworkAdapter,
+  // @ts-expect-error
+  BroadcastChannelNetworkAdapter,
   // @ts-expect-error
   BrowserWebSocketClientAdapter,
   Repo,
@@ -17,12 +18,12 @@ import "./index.css";
 import App, { RootDocument } from "./App";
 import { RepoContext } from "./hooks";
 
-async function getRepo() {
+async function getRepo(url: string) {
   return await BrowserRepo({
     storage: new LocalForageStorageAdapter(),
     network: [
-      // new BroadcastChannelNetworkAdapter(),
-      new BrowserWebSocketClientAdapter('ws://skillful-sandy-practice.glitch.me/')
+      new BroadcastChannelNetworkAdapter(),
+      new BrowserWebSocketClientAdapter(url)
     ],
   });
 }
@@ -49,7 +50,13 @@ const initFunction = (d: RootDocument) => {
   d.items = [];
 };
 
-getRepo().then((repo) => {
+const queryString = window.location.search; // Returns:'?q=123'
+
+// Further parsing:
+const params = new URLSearchParams(queryString);
+const hostname = params.get("host") || "automerge-storage-demo.glitch.me"
+
+getRepo(`wss://${hostname}`).then((repo) => {
   getRootDocument(repo, initFunction).then((rootDoc) => {
     const rootElem = document.getElementById("root")
     if (!rootElem) { throw new Error("The 'root' element wasn't found in the host HTML doc.") }
