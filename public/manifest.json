@@ -1,6 +1,8 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Automerge Demo",
+  "description": "A simple demonstration app for Automerge running as a local-first PWA. Includes tab-to-tab sync within a browser, local storage in indexedDB, and synchronziation with a storage server.",
+  "orientation": "any",
+  "name": "Automerge React Demonstration App",
   "icons": [
     {
       "src": "favicon.ico",
