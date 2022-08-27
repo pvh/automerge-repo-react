@@ -1,10 +1,5 @@
 import React, { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import App, { RootDocument } from "./App";
-
-import { RepoContext } from "./hooks";
-
 import localforage from "localforage";
 
 import {
@@ -17,6 +12,10 @@ import {
   BrowserWebSocketClientAdapter,
   Repo,
 } from "automerge-repo"
+
+import "./index.css";
+import App, { RootDocument } from "./App";
+import { RepoContext } from "./hooks";
 
 async function getRepo() {
   return await BrowserRepo({
