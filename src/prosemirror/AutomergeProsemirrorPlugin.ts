@@ -23,12 +23,9 @@ export const automergePlugin = <T>(
     key: automergePluginKey,
     state: {
       init(config, instance) {
-        console.log("init plugin state")
         return { heads: [] }
       },
       apply(tr, value, oldState) {
-        console.log("applying", value)
-
         const meta = tr.getMeta(automergePluginKey)
         if (meta) {
           return { heads: meta.heads }
@@ -44,11 +41,9 @@ export const automergePlugin = <T>(
       },
 
       toJSON(value) {
-        console.log("tojson: implemented but never attempted")
         return value
       },
       fromJSON(_config, value, _state) {
-        console.log("fromjson: implemented but never attempted")
         return value
       },
     },
@@ -68,7 +63,12 @@ export const createProsemirrorTransactionOnChange = <T>(
     throw new Error("No heads found on plugin state")
   }
 
-  // TODO: Don't do any of this if there's no change
+  const newHeads: string[] = Automerge.getBackend(doc as Doc<T>).getHeads()
+  if (newHeads.every((val, i) => val === currentHeads[i])) {
+    console.log("heads haven't changed.")
+    return state.tr // noop transaction
+    // TODO: we should just filter these events at the source when we get patches
+  }
 
   const attribution = attributedTextChanges(doc, currentHeads, attribute)
 
@@ -80,7 +80,7 @@ export const createProsemirrorTransactionOnChange = <T>(
   )
 
   transaction.setMeta(automergePluginKey, {
-    heads: Automerge.getBackend(doc as Doc<T>).getHeads(),
+    heads: newHeads,
   })
 
   return transaction
