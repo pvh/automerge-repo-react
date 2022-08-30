@@ -11,8 +11,6 @@ import * as Automerge from 'automerge-js'
 import { DocHandle, DocHandleEventArg } from 'automerge-repo'
 import { TextKeyOf } from './automerge/AutomergeTypes'
 
-import { default as PeritextSource } from './automerge/atjson/PeritextSource'
-import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRenderer'
 import { EditorView } from 'prosemirror-view'
 import { automergePlugin, createProsemirrorTransactionOnChange } from './AutomergeProsemirrorPlugin'
 
@@ -34,15 +32,8 @@ export function Editor<T>({handle, attribute}: EditorProps<T>) {
   const editorRoot = useRef<HTMLDivElement>(null!);
 
   useEffect(() => {
-    const cleanup = handle.value().then(doc => {
-      // for whatever reason the typesystem can't follow our maze here
-      // but i promise, this is a fine use of `any`.
-      const text: Automerge.Text = doc[attribute] as any
-      let atjsonDoc = PeritextSource.fromRaw(text, doc, attribute)
-      let renderDoc = ProsemirrorRenderer.render(atjsonDoc)
-      let editorConfig = {
+    let editorConfig = {
         schema,
-        doc: renderDoc,
         history,
         plugins: [
           automergePlugin(handle, attribute),
@@ -71,9 +62,6 @@ export function Editor<T>({handle, attribute}: EditorProps<T>) {
         handle.off('change', onChange)
         view.destroy();
       })    
-    })
-
-    return () => { cleanup.then(f => f()) }
   }, [handle, attribute])
 
   return <div ref={editorRoot}></div>
