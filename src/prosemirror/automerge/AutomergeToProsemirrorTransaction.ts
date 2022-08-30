@@ -1,15 +1,24 @@
-import { ReplaceStep } from 'prosemirror-transform'
-import { Fragment, Slice } from 'prosemirror-model'
-import { schema } from 'prosemirror-schema-basic'
-import { automergeToProsemirror, BLOCK_MARKER } from './PositionMapper'
+import { ReplaceStep } from "prosemirror-transform"
+import { Fragment, Slice } from "prosemirror-model"
+import { schema } from "prosemirror-schema-basic"
+import { automergeToProsemirror, BLOCK_MARKER } from "./PositionMapper"
 
-import { EditorState, Transaction } from 'prosemirror-state'
-import { AutomergeTransaction, ChangeSetAddition, ChangeSetDeletion, TextKeyOf } from './AutomergeTypes'
-import * as Automerge from 'automerge-js'
-import { textToString } from '../RichTextUtils'
-import { Doc } from 'automerge-js'
+import { EditorState, Transaction } from "prosemirror-state"
+import {
+  AutomergeTransaction,
+  ChangeSetAddition,
+  ChangeSetDeletion,
+  TextKeyOf,
+} from "./AutomergeTypes"
+import * as Automerge from "automerge-js"
+import { textToString } from "../RichTextUtils"
+import { Doc } from "automerge-js"
 
-const convertAddToStep = <T>(doc: Doc<T>, attribute: keyof T, added: ChangeSetAddition): ReplaceStep => {
+const convertAddToStep = <T>(
+  doc: Doc<T>,
+  attribute: keyof T,
+  added: ChangeSetAddition
+): ReplaceStep => {
   const docString = textToString(doc, attribute as string)
   let text = docString.substring(added.start, added.end)
   let { from } = automergeToProsemirror(added, docString)
@@ -24,23 +33,23 @@ const convertAddToStep = <T>(doc: Doc<T>, attribute: keyof T, added: ChangeSetAd
   // the first text node here doesn't get a paragraph break
   let block = blocks.shift()
   if (!block) {
-    let node = schema.node('paragraph', {}, [])
+    let node = schema.node("paragraph", {}, [])
     nodes.push(node)
   } else {
     if (blocks.length === 0) {
       nodes.push(schema.text(block))
     } else {
-      nodes.push(schema.node('paragraph', {}, schema.text(block)))
+      nodes.push(schema.node("paragraph", {}, schema.text(block)))
     }
   }
 
   blocks.forEach((block) => {
     // FIXME this might be wrong for e.g. a paste with multiple empty paragraphs
     if (block.length === 0) {
-      nodes.push(schema.node('paragraph', {}, []))
+      nodes.push(schema.node("paragraph", {}, []))
       return
     } else {
-      let node = schema.node('paragraph', {}, schema.text(block))
+      let node = schema.node("paragraph", {}, schema.text(block))
       nodes.push(node)
     }
   })
@@ -51,8 +60,11 @@ const convertAddToStep = <T>(doc: Doc<T>, attribute: keyof T, added: ChangeSetAd
   return new ReplaceStep(from, from, slice)
 }
 
-
-const convertDeleteToStep = <T>(doc: Doc<T>, attribute: keyof T, deleted: ChangeSetDeletion): ReplaceStep => {
+const convertDeleteToStep = <T>(
+  doc: Doc<T>,
+  attribute: keyof T,
+  deleted: ChangeSetDeletion
+): ReplaceStep => {
   // FIXME this should work, but the attribution steps we're getting
   // back from automerge are incorrect, so it breaks.
   let text = deleted.val
@@ -71,15 +83,17 @@ export function convertAutomergeTransactionToProsemirrorTransaction<T>(
   attribute: TextKeyOf<T>,
   state: EditorState,
   edits: AutomergeTransaction
-): Transaction | undefined {
-  if (!edits) return
-
+): Transaction {
   let tr = state.tr
 
   for (const changeset of edits) {
     //{add: {start: 3, end: 4}, del: []}
-    changeset.add.map((step) => convertAddToStep(doc, attribute, step)).map((step) => tr.step(step))
-    changeset.del.map((step) => convertDeleteToStep(doc, attribute, step)).map((step) => tr.step(step))
+    changeset.add
+      .map((step) => convertAddToStep(doc, attribute, step))
+      .map((step) => tr.step(step))
+    changeset.del
+      .map((step) => convertDeleteToStep(doc, attribute, step))
+      .map((step) => tr.step(step))
   }
 
   // This is pretty inefficient. This whole changes thing kind of needs a

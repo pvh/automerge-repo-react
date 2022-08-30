@@ -10,14 +10,11 @@ import { MarkType } from 'prosemirror-model'
 import * as Automerge from 'automerge-js'
 import { DocHandle, DocHandleEventArg } from 'automerge-repo'
 import { TextKeyOf } from './automerge/AutomergeTypes'
-import { attributedTextChanges } from './RichTextUtils'
 
-import ProseMirror from './ProseMirror'
 import { default as PeritextSource } from './automerge/atjson/PeritextSource'
 import { default as ProsemirrorRenderer } from './automerge/atjson/ProsemirrorRenderer'
-import { prosemirrorTransactionToAutomerge } from './automerge/ProsemirrorTransactionToAutomerge'
-import { convertAutomergeTransactionToProsemirrorTransaction } from './automerge/AutomergeToProsemirrorTransaction'
-import { Doc } from 'automerge-js'
+import { EditorView } from 'prosemirror-view'
+import { automergePlugin, createProsemirrorTransactionOnChange } from './AutomergeProsemirrorPlugin'
 
 export type EditorProps<T> = { handle: DocHandle<T>, attribute: TextKeyOf<T>, doc: Automerge.Doc<T>, changeDoc: any }
 
@@ -33,99 +30,51 @@ function toggleMarkCommand(mark: MarkType): Command {
   }
 }
 
-export function Editor<T>({handle, attribute, doc, changeDoc}: EditorProps<T>) {
-  const [state, setState] = React.useState<EditorState | null>(null)
-  const [initialized, setInitialized] = React.useState<boolean>(false)
-  const [currentHeads, setCurrentHeads] = React.useState<Automerge.Heads>()
+export function Editor<T>({handle, attribute}: EditorProps<T>) {
+  const editorRoot = useRef<HTMLDivElement>(null!);
 
   useEffect(() => {
-    if (!doc) return
-    if (initialized) return
-
-    // for whatever reason the typesystem can't follow our maze here
-    // but i promise, this is good!
-    const text: Automerge.Text = doc[attribute] as any
-    let atjsonDoc = PeritextSource.fromRaw(text, doc, attribute)
-    let renderDoc = ProsemirrorRenderer.render(atjsonDoc)
-    let editorConfig = {
-      schema,
-      doc: renderDoc,
-      history,
-      plugins: [
-        keymap({
-          ...baseKeymap,
-          'Mod-b': toggleBold,
-          'Mod-i': toggleItalic,
-          'Mod-z': undo,
-          'Mod-y': redo,
-          'Mod-Shift-z': redo})
-      ]
-    }
-
-    let newState = EditorState.create(editorConfig)
-    setState(newState)
-
-    setCurrentHeads(Automerge.getBackend(doc).getHeads())
-
-    setInitialized(true)
-
-    // in upwelling we found that the automerge object wasn't stable enough to
-    // use reliably with useEffect, and ended up using a stable integer id for
-    // the document instead. Not sure what to do with the automerge-repo
-    // integration, @pvh?
-  }, [attribute, handle, doc, initialized])
-
-  useEffect(() => {
-    if (!state || !currentHeads) return
-    let funfun = (args: DocHandleEventArg<T>) => {
-      const attribution = attributedTextChanges(args.doc, currentHeads, attribute)
-      setCurrentHeads(Automerge.getBackend(args.doc as Doc<T>).getHeads())
-
-      const transaction = convertAutomergeTransactionToProsemirrorTransaction(
-        args.doc  as Doc<T>,
-        attribute,
-        state,
-        attribution
-      )
-
-      if (transaction) {
-        let newState = state.apply(transaction)
-        setState(newState)
+    const cleanup = handle.value().then(doc => {
+      // for whatever reason the typesystem can't follow our maze here
+      // but i promise, this is a fine use of `any`.
+      const text: Automerge.Text = doc[attribute] as any
+      let atjsonDoc = PeritextSource.fromRaw(text, doc, attribute)
+      let renderDoc = ProsemirrorRenderer.render(atjsonDoc)
+      let editorConfig = {
+        schema,
+        doc: renderDoc,
+        history,
+        plugins: [
+          automergePlugin(handle, attribute),
+          keymap({
+            ...baseKeymap,
+            'Mod-b': toggleBold,
+            'Mod-i': toggleItalic,
+            'Mod-z': undo,
+            'Mod-y': redo,
+            'Mod-Shift-z': redo})
+        ]
       }
-    }
+  
+      let state = EditorState.create(editorConfig)
+      const view = new EditorView(editorRoot.current, { state });
+    
+      const onChange = (args: DocHandleEventArg<T>) => {
+        const transaction = createProsemirrorTransactionOnChange(view.state, attribute, args)
+        view.updateState(state.apply(transaction))
+      }
+      handle.on('change', onChange)
 
-    handle.on('change', funfun) 
-    return (() => {
-      handle.off('change', funfun)
+      /* move this out, we're in a then */ 
+      return (() => {
+        console.log('cleaning up')
+        handle.off('change', onChange)
+        view.destroy();
+      })    
     })
-  }, [doc, attribute, handle, currentHeads, state])
 
-  const viewRef = useRef(null)
+    return () => { cleanup.then(f => f()) }
+  }, [handle, attribute])
 
-  // This takes transactions from prosemirror and updates the automerge doc to
-  // match.
-  let dispatchHandler = (txn: Transaction) => {
-    if (!state) return
-
-    prosemirrorTransactionToAutomerge(
-      txn,
-      changeDoc,
-      attribute,
-      state
-    )
-
-    // A Prosemirror transaction can include information Automerge doesn't track.
-    // We've removed the 'steps' handled above, but we want to apply the remainder.
-    setState(state.apply(txn))    
-  }
-
-  if (!state) return <div>loading</div>
-
-  return (
-    <ProseMirror
-      state={state}
-      ref={viewRef}
-      dispatchTransaction={dispatchHandler}
-    />
-  )
+  return <div ref={editorRoot}></div>
 }
