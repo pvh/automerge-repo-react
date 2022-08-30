@@ -24,7 +24,7 @@ export const automergePlugin = <T>(
     state: {
       init(config, instance) {
         console.log("init plugin state")
-        return { heads: [] }
+        return { heads: Automerge.getBackend(handle.doc as Doc<T>).getHeads() }
       },
       apply(tr, value, oldState) {
         console.log("applying", value)
@@ -40,7 +40,7 @@ export const automergePlugin = <T>(
           attribute,
           oldState
         )
-        return value
+        return { heads: Automerge.getBackend(handle.doc as Doc<T>).getHeads() }
       },
 
       toJSON(value) {
