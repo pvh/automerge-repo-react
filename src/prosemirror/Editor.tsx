@@ -61,7 +61,7 @@ export function Editor<T>({handle, attribute}: EditorProps<T>) {
     
       const onChange = (args: DocHandleEventArg<T>) => {
         const transaction = createProsemirrorTransactionOnChange(view.state, attribute, args)
-        view.updateState(state.apply(transaction))
+        view.updateState(view.state.apply(transaction))
       }
       handle.on('change', onChange)
 
