@@ -1,6 +1,6 @@
 import * as Automerge from "automerge-js"
 import { Doc } from "automerge-js"
-import { DocHandle, DocHandleEventArg } from "automerge-repo"
+import { DocHandle } from "automerge-repo"
 import { PluginKey, Plugin, EditorState } from "prosemirror-state"
 import { convertAutomergeTransactionToProsemirrorTransaction } from "./automerge/AutomergeToProsemirrorTransaction"
 import { TextKeyOf } from "./automerge/AutomergeTypes"
@@ -60,7 +60,7 @@ export const automergePlugin = <T>(
 export const createProsemirrorTransactionOnChange = <T>(
   state: EditorState,
   attribute: TextKeyOf<T>,
-  args: DocHandleEventArg<T>
+  doc: Doc<T>
 ) => {
   const pluginState = automergePluginKey.getState(state)
   const currentHeads = pluginState?.heads
@@ -70,17 +70,17 @@ export const createProsemirrorTransactionOnChange = <T>(
 
   // TODO: Don't do any of this if there's no change
 
-  const attribution = attributedTextChanges(args.doc, currentHeads, attribute)
+  const attribution = attributedTextChanges(doc, currentHeads, attribute)
 
   const transaction = convertAutomergeTransactionToProsemirrorTransaction(
-    args.doc,
+    doc,
     attribute,
     state,
     attribution
   )
 
   transaction.setMeta(automergePluginKey, {
-    heads: Automerge.getBackend(args.doc as Doc<T>).getHeads(),
+    heads: Automerge.getBackend(doc as Doc<T>).getHeads(),
   })
 
   return transaction
