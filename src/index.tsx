@@ -16,10 +16,11 @@ import "./index.css";
 import App, { RootDocument } from "./App";
 import { RepoContext } from "./hooks";
 
-const sharedWorker = new SharedWorker(new URL('./shared-worker.js', import.meta.url));
-sharedWorker.port.start()
-sharedWorker.port.postMessage({"hello": "world"})
-console.log(sharedWorker)
+/* eslint-disable-next-line */
+const sharedWorker = new SharedWorker(
+  new URL('./shared-worker.js', import.meta.url), 
+  { type: "module", name: "automerge-repo-shared-worker"}
+);
 
 async function getRepo(url: string) {
   return await BrowserRepo({
