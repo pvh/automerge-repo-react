@@ -6,11 +6,9 @@ import {
   // @ts-expect-error
   BrowserRepo,
   // @ts-expect-error
-  LocalForageStorageAdapter,
+  MemoryStorageAdapter,
   // @ts-expect-error
   BroadcastChannelNetworkAdapter,
-  // @ts-expect-error
-  BrowserWebSocketClientAdapter,
   Repo,
 } from "automerge-repo"
 
@@ -18,12 +16,16 @@ import "./index.css";
 import App, { RootDocument } from "./App";
 import { RepoContext } from "./hooks";
 
+const sharedWorker = new SharedWorker(new URL('./shared-worker.js', import.meta.url));
+sharedWorker.port.start()
+sharedWorker.port.postMessage({"hello": "world"})
+console.log(sharedWorker)
+
 async function getRepo(url: string) {
   return await BrowserRepo({
-    storage: new LocalForageStorageAdapter(),
+    storage: new MemoryStorageAdapter(),
     network: [
       new BroadcastChannelNetworkAdapter(),
-      new BrowserWebSocketClientAdapter(url)
     ],
   });
 }
