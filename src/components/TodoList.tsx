@@ -3,6 +3,7 @@ import React, { useState } from "react"
 import { RootDocument } from "../App"
 import { useDocument, useHandle, useRepo } from "../hooks"
 import { Editor } from "../prosemirror/Editor"
+import { QuillEditor } from "../quill/Editor"
 
 export interface TodoItemArgs {
   documentId: string
@@ -26,6 +27,7 @@ function TodoItem({ documentId }: TodoItemArgs) {
   return <div style={done ? {'display': 'flex', 'textDecoration': 'line-through'} : {'display': 'flex'}} >
       <input type="checkbox" defaultChecked={done} onChange={toggleDone}></input>
       <Editor handle={handle} attribute={'text'} doc={doc} changeDoc={changeDoc}></Editor>
+      <QuillEditor handle={handle} attribute={'text'} doc={doc} changeDoc={changeDoc}></QuillEditor>
     </div>
 }
 
