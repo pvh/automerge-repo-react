@@ -9,6 +9,7 @@ import {
   MemoryStorageAdapter,
   // @ts-expect-error
   BroadcastChannelNetworkAdapter,
+  LocalFirstRelayNetworkAdapter,
 } from "automerge-repo"
 
 import "./index.css"
@@ -24,7 +25,10 @@ const sharedWorker = new SharedWorker(
 async function getRepo(url: string): Promise<DocCollection> {
   return await Repo({
     storage: new MemoryStorageAdapter(),
-    network: [new BroadcastChannelNetworkAdapter()],
+    network: [
+      new BroadcastChannelNetworkAdapter(),
+      new LocalFirstRelayNetworkAdapter("wss://local-first-relay.glitch.me/"),
+    ],
   })
 }
 
