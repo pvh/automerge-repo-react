@@ -1,4 +1,5 @@
-import { EditorState, Transaction } from "prosemirror-state"
+import { Doc, Text } from "automerge-js"
+import { EditorState } from "prosemirror-state"
 import {
   AddMarkStep,
   RemoveMarkStep,
@@ -6,15 +7,14 @@ import {
   ReplaceStep,
   Step,
 } from "prosemirror-transform"
-import { ChangeSet, TextKeyOf } from "./AutomergeTypes"
-import { prosemirrorToAutomerge } from "./PositionMapper"
 import {
   textInsertAt,
   textInsertBlock,
   textMark,
   textToString,
 } from "../RichTextUtils"
-import { Text, Doc } from "automerge-js"
+import { ChangeSet, TextKeyOf } from "./AutomergeTypes"
+import { prosemirrorToAutomerge } from "./PositionMapper"
 
 const emptyChangeSet: ChangeSet = { add: [], del: [] }
 

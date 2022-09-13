@@ -1,10 +1,10 @@
 // we could use automerge.text.toSpans() instead of this, but I'm leaving this
 // here for now since I think the current automerge-js api is a bit of a
 
-import { EditorState } from "prosemirror-state";
+import { EditorState } from "prosemirror-state"
 
 // foot-gun and could do with some tweaking.
-export const BLOCK_MARKER = '\uFFFC'
+export const BLOCK_MARKER = "\uFFFC"
 
 export const automergeToProsemirror = (
   step: { start: number; end: number },
@@ -65,7 +65,7 @@ export const prosemirrorToAutomergeNumber = (
     blocks++
   }
 
-  const noBlockNudge = (text.indexOf(BLOCK_MARKER, 0) === 0) ? 0 : 1
+  const noBlockNudge = text.indexOf(BLOCK_MARKER, 0) === 0 ? 0 : 1
 
   let amPosition = position - blocks + nudge - noBlockNudge
 
@@ -114,9 +114,10 @@ export const prosemirrorToAutomergeNumber = (
 
 export const prosemirrorToAutomerge = (
   position: { from: number; to: number },
-  text: string, /* for debugging purposes only */
+  text: string /* for debugging purposes only */,
   state: EditorState
-) => { //: { start: number; end: number } => {
+) => {
+  //: { start: number; end: number } => {
   return {
     start: prosemirrorToAutomergeNumber(position.from, text, state),
     end: prosemirrorToAutomergeNumber(position.to, text, state),

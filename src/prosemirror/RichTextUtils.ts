@@ -1,5 +1,5 @@
 import * as Automerge from "automerge-js"
-import { AutomergeTransaction, ChangeSet } from "./automerge/AutomergeTypes"
+import { AutomergeTransaction } from "./automerge/AutomergeTypes"
 
 export interface BlockData {
   start: number

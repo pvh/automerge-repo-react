@@ -1,6 +1,6 @@
-import React from 'react';
-import './App.css';
-import { TodoList } from './components/TodoList';
+import React from "react"
+import "./App.css"
+import { TodoList } from "./components/TodoList"
 
 export interface RootDocument {
   items: string[]
@@ -14,10 +14,10 @@ function App({ rootDocumentId }: AppArgs) {
   return (
     <div className="App">
       <header className="App-header">
-        <TodoList documentId={rootDocumentId}/>
+        <TodoList documentId={rootDocumentId} />
       </header>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
