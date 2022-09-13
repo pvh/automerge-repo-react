@@ -1,17 +1,14 @@
-import { Doc } from "automerge-js";
 import {
-  // @ts-expect-error
-  BrowserRepo,
+  Repo,
   // @ts-expect-error
   LocalForageStorageAdapter,
   // @ts-expect-error
   BroadcastChannelNetworkAdapter,
   // @ts-expect-error
   BrowserWebSocketClientAdapter,
-  Repo,
-} from "automerge-repo"
+} from "automerge-repo";
 
-console.log('hello from the shared worker ')
+console.log("hello from the shared worker ");
 
 // eslint-disable-next-line
 self.onconnect = function (e) {
@@ -24,18 +21,15 @@ self.onconnect = function (e) {
 };
 
 async function getRepo(url) {
-  return await BrowserRepo({
+  return await Repo({
     storage: new LocalForageStorageAdapter(),
     network: [
       new BroadcastChannelNetworkAdapter(),
-      new BrowserWebSocketClientAdapter(url)
+      new BrowserWebSocketClientAdapter(url),
     ],
   });
 }
 
 (async () => {
-  const repo = await getRepo("wss://automerge-storage-demo.glitch.me")
-
-  repo.on('document', (doc) => console.log('got a doc in the sharedworker', doc))
-  console.log(repo)
-})()
+  await getRepo("wss://automerge-storage-demo.glitch.me");
+})();

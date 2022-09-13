@@ -1,10 +1,10 @@
 import { Doc } from "automerge-js"
-import { DocHandle, DocHandleEventArg, Repo } from "automerge-repo"
+import { DocHandle, DocHandleEventArg, DocCollection } from "automerge-repo"
 import { useEffect, useState, createContext, useContext } from "react"
 
-export const RepoContext = createContext(null)
+export const RepoContext = createContext<DocCollection | null>(null)
 
-export function useRepo(): Repo {
+export function useRepo(): DocCollection {
   const repo = useContext(RepoContext)
 
   if (!repo) {

@@ -3,13 +3,12 @@ import ReactDOM from "react-dom/client";
 import localforage from "localforage";
 
 import {
-  // @ts-expect-error
-  BrowserRepo,
+  Repo,
+  DocCollection,
   // @ts-expect-error
   MemoryStorageAdapter,
   // @ts-expect-error
   BroadcastChannelNetworkAdapter,
-  Repo,
 } from "automerge-repo"
 
 import "./index.css";
@@ -22,8 +21,8 @@ const sharedWorker = new SharedWorker(
   { type: "module", name: "automerge-repo-shared-worker"}
 );
 
-async function getRepo(url: string) {
-  return await BrowserRepo({
+async function getRepo(url: string): Promise<DocCollection> {
+  return await Repo({
     storage: new MemoryStorageAdapter(),
     network: [
       new BroadcastChannelNetworkAdapter(),
@@ -31,7 +30,7 @@ async function getRepo(url: string) {
   });
 }
 
-async function getRootDocument(repo: Repo, initFunction: any) {
+async function getRootDocument(repo: DocCollection, initFunction: any) {
   let docId: string | null = window.location.hash.replace(/^#/, "");
   if (!docId) {
     docId = await localforage.getItem("root");
